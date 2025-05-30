@@ -1,2 +1,12 @@
 eclipse.preferences.version=1
+encoding//APP/broadcaster_main.c=Big5
+encoding//APP/include/broadcaster.h=GBK
+encoding//HAL/MCU.c=UTF-8
+encoding//HAL/include/CONFIG.h=GBK
+encoding//HAL/include/HAL.h=GBK
+encoding//LIB/CH59xBLE_LIB.h=GBK
+encoding//LIB/CH59xBLE_ROM.h=GBK
+encoding//RVMSIS/core_riscv.c=GBK
 encoding//Startup/startup_CH592.S=UTF-8
+encoding//StdPeriphDriver/CH59x_sys.c=GBK
+encoding/LICENSE=GBK

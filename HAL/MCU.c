@@ -3,7 +3,7 @@
  * Author             : WCH
  * Version            : V1.2
  * Date               : 2022/01/18
- * Description        : 硬件任务处理函数及BLE和硬件初始化
+ * Description        : Hardware task processing function and BLE and hardware initialization
  *********************************************************************************
  * Copyright (c) 2021 Nanjing Qinheng Microelectronics Co., Ltd.
  * Attention: This software (modified or not) and binary are used for 
@@ -11,7 +11,7 @@
  *******************************************************************************/
 
 /******************************************************************************/
-/* 头文件包含 */
+/* Header file contains */
 #include "HAL.h"
 
 tmosTaskID halTaskID;
@@ -19,7 +19,7 @@ uint32_t g_LLE_IRQLibHandlerLocation;
 /*******************************************************************************
  * @fn      Lib_Calibration_LSI
  *
- * @brief   内部32k校准
+ * @brief   Internal 32k calibration
  *
  * @param   None.
  *
@@ -112,7 +112,7 @@ void CH59x_BLEInit(void)
         while(1);
     }
 
-    SysTick_Config(SysTick_LOAD_RELOAD_Msk);// 配置SysTick并打开中断
+    SysTick_Config(SysTick_LOAD_RELOAD_Msk);// Configure SysTick and enable interrupts
     PFIC_DisableIRQ(SysTick_IRQn);
 
     g_LLE_IRQLibHandlerLocation = (uint32_t)LLE_IRQLibHandler;
@@ -139,18 +139,18 @@ void CH59x_BLEInit(void)
     cfg.ConnectNumber = (PERIPHERAL_MAX_CONNECTION & 3) | (CENTRAL_MAX_CONNECTION << 2);
     cfg.srandCB = SYS_GetSysTickCnt;
 #if(defined TEM_SAMPLE) && (TEM_SAMPLE == TRUE)
-    cfg.tsCB = HAL_GetInterTempValue; // 根据温度变化校准RF和内部RC( 大于7摄氏度 )
+    cfg.tsCB = HAL_GetInterTempValue; // Calibrate RF and internal RC based on temperature variation (greater than 7 degrees Celsius)
   #if(CLK_OSC32K)
-    cfg.rcCB = Lib_Calibration_LSI; // 内部32K时钟校准
+    cfg.rcCB = Lib_Calibration_LSI; // Internal 32K clock calibration
   #endif
 #endif
 #if(defined(HAL_SLEEP)) && (HAL_SLEEP == TRUE)
-    cfg.idleCB = CH59x_LowPower; // 启用睡眠
+    cfg.idleCB = CH59x_LowPower; // Enable Sleep
 #endif
 #if(defined(BLE_MAC)) && (BLE_MAC == TRUE)
     for(i = 0; i < 6; i++)
     {
-        cfg.MacAddr[i] = MacAddr[5 - i];
+        cfg.MacAddr[i] = MacAddr[5 - i]; // custom MAC addr
     }
 #else
     {
@@ -158,7 +158,7 @@ void CH59x_BLEInit(void)
         GetMACAddress(MacAddr);
         for(i = 0; i < 6; i++)
         {
-            cfg.MacAddr[i] = MacAddr[i]; // 使用芯片mac地址
+            cfg.MacAddr[i] = MacAddr[i]; // Use chip mac address
         }
     }
 #endif
@@ -177,7 +177,7 @@ void CH59x_BLEInit(void)
 /*******************************************************************************
  * @fn      HAL_ProcessEvent
  *
- * @brief   硬件层事务处理
+ * @brief   Hardware-level transaction processing
  *
  * @param   task_id - The TMOS assigned task ID.
  * @param   events  - events to process.  This is a bit map and can
@@ -190,7 +190,7 @@ tmosEvents HAL_ProcessEvent(tmosTaskID task_id, tmosEvents events)
     uint8_t *msgPtr;
 
     if(events & SYS_EVENT_MSG)
-    { // 处理HAL层消息，调用tmos_msg_receive读取消息，处理完成后删除消息。
+    { // Process HAL layer messages, call tmos_msg_receive to read the messages, and delete the messages after processing.
         msgPtr = tmos_msg_receive(task_id);
         if(msgPtr)
         {
@@ -225,14 +225,14 @@ tmosEvents HAL_ProcessEvent(tmosTaskID task_id, tmosEvents events)
     if(events & HAL_REG_INIT_EVENT)
     {
         uint8_t x32Kpw;
-#if(defined BLE_CALIBRATION_ENABLE) && (BLE_CALIBRATION_ENABLE == TRUE) // 校准任务，单次校准耗时小于10ms
-        BLE_RegInit();                                                  // 校准RF
+#if(defined BLE_CALIBRATION_ENABLE) && (BLE_CALIBRATION_ENABLE == TRUE) // Calibration task, single calibration takes less than 10ms
+        BLE_RegInit();                                                  // Calibrate RF
 #if(CLK_OSC32K)
-        Lib_Calibration_LSI(); // 校准内部RC
+        Lib_Calibration_LSI(); // Calibrate internal RC
 #else
         x32Kpw = (R8_XT32K_TUNE & 0xfc) | 0x01;
         sys_safe_access_enable();
-        R8_XT32K_TUNE = x32Kpw; // LSE驱动电流降低到额定电流
+        R8_XT32K_TUNE = x32Kpw; // LSE drive current is reduced to the rated current
         sys_safe_access_disable();
 #endif
         tmos_start_task(halTaskID, HAL_REG_INIT_EVENT, MS1_TO_SYSTEM_TIME(BLE_CALIBRATION_PERIOD));
@@ -251,7 +251,7 @@ tmosEvents HAL_ProcessEvent(tmosTaskID task_id, tmosEvents events)
 /*******************************************************************************
  * @fn      HAL_Init
  *
- * @brief   硬件初始化
+ * @brief   Hardware Initialization
  *
  * @param   None.
  *
@@ -271,18 +271,18 @@ void HAL_Init()
     HAL_KeyInit();
 #endif
 #if(defined BLE_CALIBRATION_ENABLE) && (BLE_CALIBRATION_ENABLE == TRUE)
-    tmos_start_task(halTaskID, HAL_REG_INIT_EVENT, 800); // 添加校准任务，500ms启动，单次校准耗时小于10ms
+    tmos_start_task(halTaskID, HAL_REG_INIT_EVENT, 800); // Added calibration task, started in 500ms, single calibration takes less than 10ms
 #endif
-//    tmos_start_task( halTaskID, HAL_TEST_EVENT, 1600 );    // 添加一个测试任务
+//    tmos_start_task( halTaskID, HAL_TEST_EVENT, 1600 );    // Add a test task
     tmos_set_event(halTaskID, LED_TIMER_EXPIRED_EVENT);
 }
 
 /*******************************************************************************
  * @fn      HAL_GetInterTempValue
  *
- * @brief   获取内部温感采样值，如果使用了ADC中断采样，需在此函数中暂时屏蔽中断.
+ * @brief   Get the internal temperature sampling value. If ADC interrupt sampling is used, the interrupt must be temporarily disabled in this function.
  *
- * @return  内部温感采样值.
+ * @return  Internal temperature sampling value.
  */
 uint16_t HAL_GetInterTempValue(void)
 {

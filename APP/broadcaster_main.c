@@ -107,6 +107,7 @@ int main(void)
     HAL_TimeInit();
     Broadcaster_Init();         // broadcaster.c
 
+    // Do not translate this!
     // 志 改找抉技 把快忪我技快 技我忍忘扶我快 扶快 把忘忌抉找忘快找. 忱我抉忱 忍抉把我找.
     //LowPower_Idle();      // go to idle mode
     //LowPower_Sleep(RB_PWR_RAM2K);
