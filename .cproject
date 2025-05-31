@@ -14,7 +14,7 @@
 				</extensions>
 			</storageModule>
 			<storageModule moduleId="cdtBuildSystem" version="4.0.0">
-				<configuration artifactName="${ProjName}" buildArtefactType="org.eclipse.cdt.build.core.buildArtefactType.exe" buildProperties="org.eclipse.cdt.build.core.buildArtefactType=org.eclipse.cdt.build.core.buildArtefactType.exe,org.eclipse.cdt.build.core.buildType=org.eclipse.cdt.build.core.buildType.release" cleanCommand="${cross_rm} -rf" description="" id="ilg.gnumcueclipse.managedbuild.cross.riscv.config.elf.release.1008047074" name="obj" optionalBuildProperties="org.eclipse.cdt.docker.launcher.containerbuild.property.volumes=,org.eclipse.cdt.docker.launcher.containerbuild.property.selectedvolumes=" parent="ilg.gnumcueclipse.managedbuild.cross.riscv.config.elf.release">
+				<configuration artifactName="${ProjName}" buildArtefactType="org.eclipse.cdt.build.core.buildArtefactType.exe" buildProperties="org.eclipse.cdt.build.core.buildArtefactType=org.eclipse.cdt.build.core.buildArtefactType.exe,org.eclipse.cdt.build.core.buildType=org.eclipse.cdt.build.core.buildType.release" cleanCommand="${cross_rm} -rf" description="" id="ilg.gnumcueclipse.managedbuild.cross.riscv.config.elf.release.1008047074" name="obj" optionalBuildProperties="org.eclipse.cdt.docker.launcher.containerbuild.property.selectedvolumes=,org.eclipse.cdt.docker.launcher.containerbuild.property.volumes=" parent="ilg.gnumcueclipse.managedbuild.cross.riscv.config.elf.release">
 					<folderInfo id="ilg.gnumcueclipse.managedbuild.cross.riscv.config.elf.release.1008047074." name="/" resourcePath="">
 						<toolChain id="ilg.gnumcueclipse.managedbuild.cross.riscv.toolchain.elf.release.231146001" name="RISC-V Cross GCC" superClass="ilg.gnumcueclipse.managedbuild.cross.riscv.toolchain.elf.release">
 							<option id="ilg.gnumcueclipse.managedbuild.cross.riscv.option.addtools.createflash.1311852988" name="Create flash image" superClass="ilg.gnumcueclipse.managedbuild.cross.riscv.option.addtools.createflash" useByScannerDiscovery="false" value="true" valueType="boolean"/>
@@ -130,9 +130,6 @@
 							</tool>
 						</toolChain>
 					</folderInfo>
-					<fileInfo id="ilg.gnumcueclipse.managedbuild.cross.riscv.config.elf.release.1008047074.1863014343" name="MCU.c" rcbsApplicability="disable" resourcePath="HAL/MCU.c" toolsToInvoke="ilg.gnumcueclipse.managedbuild.cross.riscv.tool.c.compiler.1731377187.1439127566">
-						<tool id="ilg.gnumcueclipse.managedbuild.cross.riscv.tool.c.compiler.1731377187.1439127566" name="GNU RISC-V Cross C Compiler" superClass="ilg.gnumcueclipse.managedbuild.cross.riscv.tool.c.compiler.1731377187"/>
-					</fileInfo>
 					<sourceEntries>
 						<entry flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="APP"/>
 						<entry excluding="Profile|KEY.c|LED.c" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="HAL"/>
@@ -141,7 +138,7 @@
 						<entry flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="Profile"/>
 						<entry flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="RVMSIS"/>
 						<entry flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="Startup"/>
-						<entry excluding="CH59x_pwm.c|CH59x_usbdev.c|CH59x_usbhostClass.c|CH59x_usbhostBase.c|CH59x_spi0.c|CH59x_timer0.c|CH59x_timer1.c|CH59x_timer2.c|CH59x_timer3.c|CH59x_uart0.c|CH59x_uart2.c|CH59x_uart3.c" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="StdPeriphDriver"/>
+						<entry excluding="CH59x_usbdev.c|CH59x_usbhostClass.c|CH59x_usbhostBase.c|CH59x_spi0.c|CH59x_timer0.c|CH59x_timer1.c|CH59x_timer2.c|CH59x_timer3.c|CH59x_uart2.c|CH59x_uart3.c" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="StdPeriphDriver"/>
 					</sourceEntries>
 				</configuration>
 			</storageModule>
@@ -163,4 +160,5 @@
 	</storageModule>
 	<storageModule moduleId="org.eclipse.cdt.core.LanguageSettingsProviders"/>
 	<storageModule moduleId="org.eclipse.cdt.make.core.buildtargets"/>
+	<storageModule moduleId="refreshScope"/>
 </cproject>

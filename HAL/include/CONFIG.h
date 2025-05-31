@@ -3,7 +3,7 @@
  * Author             : WCH
  * Version            : V1.2
  * Date               : 2022/01/18
- * Description        : ÅäÖÃËµÃ÷¼°Ä¬ÈÏÖµ£¬½¨ÒéÔÚ¹¤³ÌÅäÖÃÀïµÄÔ¤´¦ÀíÖÐÐÞ¸Äµ±Ç°Öµ
+ * Description        : Configuration description and default value. It is recommended to modify the current value in the preprocessing in the project configuration.
  *********************************************************************************
  * Copyright (c) 2021 Nanjing Qinheng Microelectronics Co., Ltd.
  * Attention: This software (modified or not) and binary are used for 
@@ -27,59 +27,59 @@
 #include "CH59x_common.h"
 
 /*********************************************************************
- ¡¾MAC¡¿
- BLE_MAC                                    - ÊÇ·ñ×Ô¶¨ÒåÀ¶ÑÀMacµØÖ· ( Ä¬ÈÏ:FALSE - Ê¹ÓÃÐ¾Æ¬MacµØÖ· )£¬ÐèÒªÔÚmain.cÐÞ¸ÄMacµØÖ·¶¨Òå
+ ã€MACã€‘
+ BLE_MAC                                    - Whether to customize the Bluetooth Mac address (default: FALSE - use the chip Mac address), you need to modify the Mac address definition in main.c
 
- ¡¾DCDC¡¿
- DCDC_ENABLE                                - ÊÇ·ñÊ¹ÄÜDCDC ( Ä¬ÈÏ:FALSE )
+ ã€DCDCã€‘
+ DCDC_ENABLE                                - Whether to enable DCDC (default: FALSE)
 
- ¡¾SLEEP¡¿
- HAL_SLEEP                                  - ÊÇ·ñ¿ªÆôË¯Ãß¹¦ÄÜ ( Ä¬ÈÏ:FALSE )
- SLEEP_RTC_MIN_TIME                         - ·Ç¿ÕÏÐÄ£Ê½ÏÂË¯ÃßµÄ×îÐ¡Ê±¼ä£¨µ¥Î»£ºÒ»¸öRTCÖÜÆÚ£©
- SLEEP_RTC_MAX_TIME                         - ·Ç¿ÕÏÐÄ£Ê½ÏÂË¯ÃßµÄ×î´óÊ±¼ä£¨µ¥Î»£ºÒ»¸öRTCÖÜÆÚ£©
- WAKE_UP_RTC_MAX_TIME                       - µÈ´ý32M¾§ÕñÎÈ¶¨Ê±¼ä£¨µ¥Î»£ºÒ»¸öRTCÖÜÆÚ£©
-                                                                                                                            ¸ù¾Ý²»Í¬Ë¯ÃßÀàÐÍÈ¡Öµ¿É·ÖÎª£º Ë¯ÃßÄ£Ê½/ÏÂµçÄ£Ê½  - 45 (Ä¬ÈÏ)
-                                                                                                                                                                                                  ÔÝÍ£Ä£Ê½    - 45
-                                                                                                                                                                                                  ¿ÕÏÐÄ£Ê½    - 5
- ¡¾TEMPERATION¡¿
- TEM_SAMPLE                                 - ÊÇ·ñ´ò¿ª¸ù¾ÝÎÂ¶È±ä»¯Ð£×¼µÄ¹¦ÄÜ£¬µ¥´ÎÐ£×¼ºÄÊ±Ð¡ÓÚ10ms( Ä¬ÈÏ:TRUE )
+ ã€SLEEPã€‘
+ HAL_SLEEP                                  - Whether to enable the sleep function (default: FALSE)
+ SLEEP_RTC_MIN_TIME                         - Minimum sleep time in non-idle mode (unit: one RTC cycle)
+ SLEEP_RTC_MAX_TIME                         - Maximum sleep time in non-idle mode (unit: one RTC cycle)
+ WAKE_UP_RTC_MAX_TIME                       - Waiting for 32M crystal oscillator to stabilize (unit: one RTC cycle)
+                                              According to different sleep types, the values â€‹â€‹can be divided into: Sleep mode/power-off mode - 45 (default)
+                                              Pause Mode    - 45
+                                              Idle Mode - 5
+ ã€TEMPERATIONã€‘
+ TEM_SAMPLE                                 - Whether to enable the function of calibrating according to temperature changes, and a single calibration takes less than 10ms (default: TRUE)
  
- ¡¾CALIBRATION¡¿
- BLE_CALIBRATION_ENABLE                     - ÊÇ·ñ´ò¿ª¶¨Ê±Ð£×¼µÄ¹¦ÄÜ£¬µ¥´ÎÐ£×¼ºÄÊ±Ð¡ÓÚ10ms( Ä¬ÈÏ:TRUE )
- BLE_CALIBRATION_PERIOD                     - ¶¨Ê±Ð£×¼µÄÖÜÆÚ£¬µ¥Î»ms( Ä¬ÈÏ:120000 )
+ ã€CALIBRATIONã€‘
+ BLE_CALIBRATION_ENABLE                     - Whether to enable the timed calibration function, and a single calibration takes less than 10ms (default: TRUE)
+ BLE_CALIBRATION_PERIOD                     - The period of timing calibration, in ms (default: 120000)
  
- ¡¾SNV¡¿
- BLE_SNV                                    - ÊÇ·ñ¿ªÆôSNV¹¦ÄÜ£¬ÓÃÓÚ´¢´æ°ó¶¨ÐÅÏ¢( Ä¬ÈÏ:TRUE )
- BLE_SNV_ADDR                               - SNVÐÅÏ¢±£´æµØÖ·£¬Ê¹ÓÃdata flash×îºó512×Ö½Ú( Ä¬ÈÏ:0x77E00 )
- BLE_SNV_BLOCK                              - SNVÐÅÏ¢±£´æ¿é´óÐ¡( Ä¬ÈÏ:256 )
- BLE_SNV_NUM                                - SNVÐÅÏ¢±£´æÊýÁ¿( Ä¬ÈÏ:1 )
+ ã€SNVã€‘
+ BLE_SNV                                    - æ˜¯å¦å¼€å¯SNVåŠŸèƒ½ï¼Œç”¨äºŽå‚¨å­˜ç»‘å®šä¿¡æ¯( é»˜è®¤:TRUE )
+ BLE_SNV_ADDR                               - SNVä¿¡æ¯ä¿å­˜åœ°å€ï¼Œä½¿ç”¨data flashæœ€åŽ512å­—èŠ‚( é»˜è®¤:0x77E00 )
+ BLE_SNV_BLOCK                              - SNVä¿¡æ¯ä¿å­˜å—å¤§å°( é»˜è®¤:256 )
+ BLE_SNV_NUM                                - SNVä¿¡æ¯ä¿å­˜æ•°é‡( é»˜è®¤:1 )
 
- ¡¾RTC¡¿
- CLK_OSC32K                                 - RTCÊ±ÖÓÑ¡Ôñ£¬Èç°üº¬Ö÷»ú½ÇÉ«±ØÐëÊ¹ÓÃÍâ²¿32K( 0 Íâ²¿(32768Hz)£¬Ä¬ÈÏ:1£ºÄÚ²¿(32000Hz)£¬2£ºÄÚ²¿(32768Hz) )
+ ã€RTCã€‘
+ CLK_OSC32K                                 - RTCæ—¶é’Ÿé€‰æ‹©ï¼Œå¦‚åŒ…å«ä¸»æœºè§’è‰²å¿…é¡»ä½¿ç”¨å¤–éƒ¨32K( 0 å¤–éƒ¨(32768Hz)ï¼Œé»˜è®¤:1ï¼šå†…éƒ¨(32000Hz)ï¼Œ2ï¼šå†…éƒ¨(32768Hz) )
 
- ¡¾MEMORY¡¿
- BLE_MEMHEAP_SIZE                           - À¶ÑÀÐ­ÒéÕ»Ê¹ÓÃµÄRAM´óÐ¡£¬²»Ð¡ÓÚ6K ( Ä¬ÈÏ:(1024*6) )
+ ã€MEMORYã€‘
+ BLE_MEMHEAP_SIZE                           - è“ç‰™åè®®æ ˆä½¿ç”¨çš„RAMå¤§å°ï¼Œä¸å°äºŽ6K ( é»˜è®¤:(1024*6) )
 
- ¡¾DATA¡¿
- BLE_BUFF_MAX_LEN                           - µ¥¸öÁ¬½Ó×î´ó°ü³¤¶È( Ä¬ÈÏ:27 (ATT_MTU=23)£¬È¡Öµ·¶Î§[27~516] )
- BLE_BUFF_NUM                               - ¿ØÖÆÆ÷»º´æµÄ°üÊýÁ¿( Ä¬ÈÏ:5 )
- BLE_TX_NUM_EVENT                           - µ¥¸öÁ¬½ÓÊÂ¼þ×î¶à¿ÉÒÔ·¢¶àÉÙ¸öÊý¾Ý°ü( Ä¬ÈÏ:1 )
- BLE_TX_POWER                               - ·¢Éä¹¦ÂÊ( Ä¬ÈÏ:LL_TX_POWEER_0_DBM (0dBm) )
+ ã€DATAã€‘
+ BLE_BUFF_MAX_LEN                           - å•ä¸ªè¿žæŽ¥æœ€å¤§åŒ…é•¿åº¦( é»˜è®¤:27 (ATT_MTU=23)ï¼Œå–å€¼èŒƒå›´[27~516] )
+ BLE_BUFF_NUM                               - æŽ§åˆ¶å™¨ç¼“å­˜çš„åŒ…æ•°é‡( é»˜è®¤:5 )
+ BLE_TX_NUM_EVENT                           - å•ä¸ªè¿žæŽ¥äº‹ä»¶æœ€å¤šå¯ä»¥å‘å¤šå°‘ä¸ªæ•°æ®åŒ…( é»˜è®¤:1 )
+ BLE_TX_POWER                               - å‘å°„åŠŸçŽ‡( é»˜è®¤:LL_TX_POWEER_0_DBM (0dBm) )
  
- ¡¾MULTICONN¡¿
- PERIPHERAL_MAX_CONNECTION                  - ×î¶à¿ÉÍ¬Ê±×ö¶àÉÙ´Ó»ú½ÇÉ«( Ä¬ÈÏ:1 )
- CENTRAL_MAX_CONNECTION                     - ×î¶à¿ÉÍ¬Ê±×ö¶àÉÙÖ÷»ú½ÇÉ«( Ä¬ÈÏ:3 )
+ ã€MULTICONNã€‘
+ PERIPHERAL_MAX_CONNECTION                  - æœ€å¤šå¯åŒæ—¶åšå¤šå°‘ä»Žæœºè§’è‰²( é»˜è®¤:1 )
+ CENTRAL_MAX_CONNECTION                     - æœ€å¤šå¯åŒæ—¶åšå¤šå°‘ä¸»æœºè§’è‰²( é»˜è®¤:3 )
 
  **********************************************************************/
 
 /*********************************************************************
- * Ä¬ÈÏÅäÖÃÖµ
+ * é»˜è®¤é…ç½®å€¼
  */
 #ifndef BLE_MAC
 #define BLE_MAC                             FALSE
 #endif
 #ifndef DCDC_ENABLE
-#define DCDC_ENABLE                         FALSE
+#define DCDC_ENABLE                         TRUE
 #endif
 #ifndef HAL_SLEEP
 #define HAL_SLEEP                           TRUE
@@ -121,7 +121,7 @@
 #define BLE_SNV_NUM                         1
 #endif
 #ifndef CLK_OSC32K
-#define CLK_OSC32K                          1   // ¸ÃÏîÇëÎðÔÚ´ËÐÞ¸Ä£¬±ØÐëÔÚ¹¤³ÌÅäÖÃÀïµÄÔ¤´¦ÀíÖÐÐÞ¸Ä£¬Èç°üº¬Ö÷»ú½ÇÉ«±ØÐëÊ¹ÓÃÍâ²¿32K
+#define CLK_OSC32K                          1   // è¯¥é¡¹è¯·å‹¿åœ¨æ­¤ä¿®æ”¹ï¼Œå¿…é¡»åœ¨å·¥ç¨‹é…ç½®é‡Œçš„é¢„å¤„ç†ä¸­ä¿®æ”¹ï¼Œå¦‚åŒ…å«ä¸»æœºè§’è‰²å¿…é¡»ä½¿ç”¨å¤–éƒ¨32K
 #endif
 #ifndef BLE_MEMHEAP_SIZE
 #define BLE_MEMHEAP_SIZE                    (1024*6)
