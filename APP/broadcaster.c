@@ -51,7 +51,7 @@
 /*********************************************************************
  * EXTERNAL FUNCTIONS
  */
-
+extern uint16_t __counter_cold, __counter_hot;
 /*********************************************************************
  * LOCAL VARIABLES
  */
@@ -80,22 +80,29 @@ static uint8_t scanRspData[] = {
 
 // GAP - Advertisement data (max size = 31 bytes, though this is
 // best kept short to conserve power while advertisting)
-static uint8_t advertData[] = {
+static uint8_t advertData[30];
+
+uint8_t ad_template[] = {
     // Flags; this sets the device to use limited discoverable
     // mode (advertises for 30 seconds at a time) instead of general
     // discoverable mode (advertises indefinitely)
     0x02, // length of this data
     GAP_ADTYPE_FLAGS,
-    GAP_ADTYPE_FLAGS_BREDR_NOT_SUPPORTED,
+    GAP_ADTYPE_FLAGS_BREDR_NOT_SUPPORTED
 
     // Broadcast of the data
+    /*
     0x04,                             // length of this data including the data type byte
     GAP_ADTYPE_MANUFACTURER_SPECIFIC, // manufacturer specific advertisement data type
-    'b', 'l', 'e', 0x0A,
-    GAP_ADTYPE_LOCAL_NAME_SHORT,
-    'i', 'P', 'h','o','n','e','1','5','c'
+    'b', 'l', 'e',
+
+    0x0A, GAP_ADTYPE_LOCAL_NAME_SHORT,
+    'i', 'P', 'h','o','n','e','1','5',0
+    */
 };
 
+char xbuf[32];
+//char ybuf[32];
 /*********************************************************************
  * LOCAL FUNCTIONS
  */
@@ -108,8 +115,16 @@ static void Broadcaster_StateNotificationCB(gapRole_States_t newState);
 
 // GAP Role Callbacks
 static gapRolesBroadcasterCBs_t Broadcaster_BroadcasterCBs = {Broadcaster_StateNotificationCB, // Profile State Change Callbacks
-                                                              NULL};
+                                                            NULL};
 
+#if 0
+void dump(uint8_t *buf){
+    for(int i=0; i < tmos_strlen(buf); i++){
+        printf("%02X ", buf[i]);
+    }
+    printf("\r\n");
+}
+#endif
 /*********************************************************************
  * PUBLIC FUNCTIONS
  */
@@ -144,8 +159,17 @@ void Broadcaster_Init()
         // unused data?
         GAPRole_SetParameter(GAPROLE_SCAN_RSP_DATA, sizeof(scanRspData), scanRspData);
         // adv data: may change at worktime!
-        // тут потребуется пересчитать размер, если он изменится. Но если поменяется только содержимое, можно оставить
-        GAPRole_SetParameter(GAPROLE_ADVERT_DATA, sizeof(advertData), advertData);
+        tmos_memset(advertData, 0, 30);
+        tmos_memcpy(advertData, ad_template, tmos_strlen(ad_template));
+        sprintf(xbuf, "  WC%d.%d:WH%d.%d", __counter_cold, (R8_GLOB_RESET_KEEP), __counter_hot, (R32_TMR1_CNT_END));
+        uint8_t sl = tmos_strlen(xbuf);
+        xbuf[0] = sl-1;
+        xbuf[1] = GAP_ADTYPE_LOCAL_NAME_SHORT;
+
+        strcat(advertData, xbuf);
+
+        GAPRole_SetParameter(GAPROLE_ADVERT_DATA, tmos_strlen(advertData), advertData);
+        GAP_UpdateAdvertisingData(Broadcaster_TaskID, TRUE, 30, advertData );
     }
 
     // Set advertising interval
@@ -153,11 +177,11 @@ void Broadcaster_Init()
         uint16_t advInt = DEFAULT_ADVERTISING_INTERVAL;
 
         GAP_SetParamValue(TGAP_DISC_ADV_INT_MIN, advInt);
-        GAP_SetParamValue(TGAP_DISC_ADV_INT_MAX, advInt);
+        GAP_SetParamValue(TGAP_DISC_ADV_INT_MAX, (advInt << 1));
     }
 
     // Setup a delayed profile startup
-    tmos_set_event(Broadcaster_TaskID, SBP_START_DEVICE_EVT);
+    tmos_set_event(Broadcaster_TaskID, SBP_START_DEVICE_EVT);   // �٧ѧ���� �ާѧ�ܧ� ��֧�֧� ��ڧ��֧ާ� ��ӧ֧ߧ���
 }
 
 /*********************************************************************
@@ -235,15 +259,15 @@ static void Broadcaster_StateNotificationCB(gapRole_States_t newState)
     switch(newState)
     {
         case GAPROLE_STARTED:
-            PRINT("Initialized..\n");
+            PRINT("Initialized..\r\n");
             break;
 
         case GAPROLE_ADVERTISING:
-            PRINT("Advertising..\n");
+            PRINT("Advertising..\r\n");
             break;
 
         case GAPROLE_WAITING:
-            PRINT("Waiting for advertising..\n");
+            PRINT("Waiting for advertising..\r\n");
             break;
 
         case GAPROLE_ERROR:

@@ -16,6 +16,8 @@
 
 tmosTaskID halTaskID;
 uint32_t g_LLE_IRQLibHandlerLocation;
+
+extern uint8_t is_sleep;
 /*******************************************************************************
  * @fn      Lib_Calibration_LSI
  *
@@ -188,6 +190,7 @@ void CH59x_BLEInit(void)
 tmosEvents HAL_ProcessEvent(tmosTaskID task_id, tmosEvents events)
 {
     uint8_t *msgPtr;
+    static uint16_t wks = 0;
 
     if(events & SYS_EVENT_MSG)
     { // Process HAL layer messages, call tmos_msg_receive to read the messages, and delete the messages after processing.
@@ -201,9 +204,16 @@ tmosEvents HAL_ProcessEvent(tmosTaskID task_id, tmosEvents events)
     }
     if(events & LED_TIMER_EXPIRED_EVENT)
     {
-        GPIOA_InverseBits(GPIO_Pin_8);
+        if(is_sleep == 0){
+            wks++;
+            if(wks == 5 * 60) {
+                is_sleep = 1;                 // req to sleep
+                wks = 0;
+            }
+        }
+        GPIOA_InverseBits(GPIO_Pin_8);  // A8 §ï§ä§à §ã§Ó§Ö§ä§à§Õ§Ú§à§Õ
         // §Ù§Ñ§á§å§ã§Ü§Ñ§Ö§Þ §à§Õ§ß§à§â§Ñ§Ù§à§Ó§å§ð §Ù§Ñ§Õ§Ñ§é§å, §Ü§à§ä§à§â§Ñ§ñ §á§â§Ú§Ó§Ö§Õ§Ö§ä §Ó §ï§ä§à §Ø§Ö §Þ§Ö§ã§ä§à
-        tmos_start_task(halTaskID, LED_TIMER_EXPIRED_EVENT, MS1_TO_SYSTEM_TIME(1000));
+        tmos_start_task(halTaskID, LED_TIMER_EXPIRED_EVENT, MS1_TO_SYSTEM_TIME(200));
         return (events ^ LED_TIMER_EXPIRED_EVENT); // §ã§Ò§â§à§ã§Ú§Ý§Ú §á§â§Ú§Ù§ß§Ñ§Ü §ï§Ó§Ö§ß§ä§Ñ, §à§ß §à§Ò§ã§Ý§å§Ø§Ö§ß
     }
 

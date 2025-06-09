@@ -168,11 +168,11 @@ void SYS_RecoverIrq(uint32_t irq_status)
 /*********************************************************************
  * @fn      SYS_GetSysTickCnt
  *
- * @brief   获取当前系统(SYSTICK)计数值
+ * @brief   Get the current system (SYSTICK) count value
  *
  * @param   none
  *
- * @return  当前计数值
+ * @return  Current count value
  */
 uint32_t SYS_GetSysTickCnt(void)
 {
@@ -212,9 +212,9 @@ void WWDG_ITCfg(FunctionalState s)
 /*********************************************************************
  * @fn      WWDG_ResetCfg
  *
- * @brief   看门狗定时器复位功能
+ * @brief   Watchdog timer reset function
  *
- * @param   s       - 溢出是否复位
+ * @param   s       - Overflow reset
  *
  * @return  none
  */
@@ -350,8 +350,8 @@ int _write(int fd, char *buf, int size)
         while(R8_UART0_TFC == UART_FIFO_SIZE);                  /* 等待数据发送 */
         R8_UART0_THR = *buf++; /* 发送数据 */
 #elif DEBUG == Debug_UART1
-        while(R8_UART1_TFC == UART_FIFO_SIZE);                  /* 等待数据发送 */
-        R8_UART1_THR = *buf++; /* 发送数据 */
+        while(R8_UART1_TFC == UART_FIFO_SIZE);                  /* Waiting for data to be sent */
+        R8_UART1_THR = *buf++; /* Sending Data */
 #elif DEBUG == Debug_UART2
         while(R8_UART2_TFC == UART_FIFO_SIZE);                  /* 等待数据发送 */
         R8_UART2_THR = *buf++; /* 发送数据 */

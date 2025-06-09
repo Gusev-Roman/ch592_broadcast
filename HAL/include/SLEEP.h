@@ -27,14 +27,14 @@ extern "C" {
  */
 
 /**
- * @brief   配置睡眠唤醒的方式   - RTC唤醒，触发模式
+ * @brief   Configure sleep wake-up mode - RTC wake-up, trigger mode
  */
 extern void HAL_SleepInit(void);
 
 /**
  * @brief   启动睡眠
  *
- * @param   time    - 唤醒的时间点（RTC绝对值）
+ * @param   time    - Wake-up time (RTC absolute value)
  *
  * @return  state.
  */

@@ -110,7 +110,7 @@ void HAL_TimeInit(void)
     R8_CK32K_CONFIG |= RB_CLK_OSC32K_XT | RB_CLK_XT32K_PON;
     sys_safe_access_disable();
 #endif
-    RTC_InitTime(2025, 1, 1, 0, 0, 0); //RTC时钟初始化当前时间
+    RTC_InitTime(2025, 6, 1, 0, 0, 0); //RTC clock initializes current time
 
     tmos_memset( &conf, 0, sizeof(bleClockConfig_t) );
     conf.ClockAccuracy = CLK_OSC32K ? 1000 : 50;

@@ -1,5 +1,5 @@
 eclipse.preferences.version=1
-encoding//APP/broadcaster_main.c=Big5
+encoding//APP/broadcaster_main.c=UTF-8
 encoding//APP/include/broadcaster.h=GBK
 encoding//HAL/include/CONFIG.h=UTF-8
 encoding//HAL/include/HAL.h=GBK

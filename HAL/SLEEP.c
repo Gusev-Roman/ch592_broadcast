@@ -46,7 +46,7 @@ uint32_t CH59x_LowPower(uint32_t time)
         time_sleep = time - time_curr;
     }
     
-    // 若睡眠时间小于最小睡眠时间或大于最大睡眠时间，则不睡眠
+    // If the sleep time is less than the minimum sleep time or greater than the maximum sleep time, then do not sleep
     if ((time_sleep < SLEEP_RTC_MIN_TIME) || 
         (time_sleep > SLEEP_RTC_MAX_TIME)) {
         SYS_RecoverIrq(irq_status);
@@ -55,7 +55,7 @@ uint32_t CH59x_LowPower(uint32_t time)
 
     RTC_SetTignTime(time);
     SYS_RecoverIrq(irq_status);
-  #if(DEBUG == Debug_UART1) // 使用其他串口输出打印信息需要修改这行代码
+  #if(DEBUG == Debug_UART1) // To use other serial ports to print information, you need to modify this line of code
     while((R8_UART1_LSR & RB_LSR_TX_ALL_EMP) == 0)
     {
         __nop();
@@ -77,7 +77,7 @@ uint32_t CH59x_LowPower(uint32_t time)
 /*******************************************************************************
  * @fn      HAL_SleepInit
  *
- * @brief   配置睡眠唤醒的方式   - RTC唤醒，触发模式
+ * @brief   Configure sleep wake-up mode - RTC wake-up, trigger mode
  *
  * @param   None.
  *
@@ -87,10 +87,10 @@ void HAL_SleepInit(void)
 {
 #if(defined(HAL_SLEEP)) && (HAL_SLEEP == TRUE)
     sys_safe_access_enable();
-    R8_SLP_WAKE_CTRL |= RB_SLP_RTC_WAKE; // RTC唤醒
+    R8_SLP_WAKE_CTRL |= RB_SLP_RTC_WAKE; // RTC wake-up
     sys_safe_access_disable();
     sys_safe_access_enable();
-    R8_RTC_MODE_CTRL |= RB_RTC_TRIG_EN;  // 触发模式
+    R8_RTC_MODE_CTRL |= RB_RTC_TRIG_EN;  // Trigger Mode
     sys_safe_access_disable();
     PFIC_EnableIRQ(RTC_IRQn);
 #endif

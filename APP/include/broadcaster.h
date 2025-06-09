@@ -30,6 +30,10 @@ extern "C" {
 #define SBP_PERIODIC_EVT             0x0002
 #define SBP_ADV_IN_CONNECTION_EVT    0x0004
 
+#define SL_ACTIVE 0
+#define SL_REQ 1
+#define SL_SLEEP 2
+
 /*********************************************************************
  * MACROS
  */

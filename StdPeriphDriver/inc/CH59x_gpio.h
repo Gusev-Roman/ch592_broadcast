@@ -192,11 +192,11 @@ void GPIOB_ITModeCfg(uint32_t pin, GPIOITModeTpDef mode);
 #define GPIOB_ReadITFlagPort()       ((R16_PB_INT_IF & (~((GPIO_Pin_22 | GPIO_Pin_23) >> 14))) | ((R16_PB_INT_IF << 14) & (GPIO_Pin_22 | GPIO_Pin_23)))
 
 /**
- * @brief   读取GPIOA端口引脚中断标志状态
+ * @brief   Read the GPIOA port pin interrupt flag status
  *
  * @param   pin     - PA0-PA15
  *
- * @return  GPIOA端口引脚中断标志状态
+ * @return  GPIOA port pin interrupt flag status
  */
 #define GPIOA_ReadITFlagBit(pin)     (R16_PA_INT_IF & (pin))
 

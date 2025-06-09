@@ -49,13 +49,13 @@
  BLE_CALIBRATION_PERIOD                     - The period of timing calibration, in ms (default: 120000)
  
  【SNV】
- BLE_SNV                                    - 是否开启SNV功能，用于储存绑定信息( 默认:TRUE )
- BLE_SNV_ADDR                               - SNV信息保存地址，使用data flash最后512字节( 默认:0x77E00 )
- BLE_SNV_BLOCK                              - SNV信息保存块大小( 默认:256 )
- BLE_SNV_NUM                                - SNV信息保存数量( 默认:1 )
+ BLE_SNV                                    - Whether to enable the SNV function to store binding information (default: TRUE)
+ BLE_SNV_ADDR                               - SNV information storage address, use the last 512 bytes of data flash (default: 0x77E00)
+ BLE_SNV_BLOCK                              - SNV information saving block size (default: 256)
+ BLE_SNV_NUM                                - Number of SNV information to save (default: 1)
 
  【RTC】
- CLK_OSC32K                                 - RTC时钟选择，如包含主机角色必须使用外部32K( 0 外部(32768Hz)，默认:1：内部(32000Hz)，2：内部(32768Hz) )
+ CLK_OSC32K                                 - RTC clock selection, if the host role is included, external 32K must be used (0 external (32768Hz), default: 1: internal (32000Hz), 2: internal (32768Hz))
 
  【MEMORY】
  BLE_MEMHEAP_SIZE                           - 蓝牙协议栈使用的RAM大小，不小于6K ( 默认:(1024*6) )
@@ -121,7 +121,7 @@
 #define BLE_SNV_NUM                         1
 #endif
 #ifndef CLK_OSC32K
-#define CLK_OSC32K                          1   // 该项请勿在此修改，必须在工程配置里的预处理中修改，如包含主机角色必须使用外部32K
+#define CLK_OSC32K                          1   // Do not modify this item here. You must modify it in the preprocessing of the project configuration. If the host role is included, an external 32K
 #endif
 #ifndef BLE_MEMHEAP_SIZE
 #define BLE_MEMHEAP_SIZE                    (1024*6)

@@ -24,7 +24,7 @@ typedef enum
 {
     RST_STATUS_SW = 0, // 软件复位
     RST_STATUS_RPOR,   // 上电复位
-    RST_STATUS_WTR,    // 看门狗超时复位
+    RST_STATUS_WTR,    // Watchdog timeout reset
     RST_STATUS_MR,     // 外部手动复位
     RST_STATUS_LRM0,   // 唤醒复位-软复位引起
     RST_STATUS_GPWSM,  // 下电模式唤醒复位
@@ -93,7 +93,7 @@ uint8_t SYS_GetInfoSta(SYS_InfoStaTypeDef i);
 void SYS_ResetExecute(void);
 
 /**
- * @brief   设置复位保存寄存器的值，不受手动复位、 软件复位、 看门狗复位或者普通唤醒复位的影响
+ * @brief   Set the reset saving register value, which is not affected by manual reset, software reset, watchdog reset or normal wake-up reset
  *
  * @param   i       - refer to SYS_InfoStaTypeDef
  */
@@ -121,35 +121,35 @@ void SYS_RecoverIrq(uint32_t irq_status);
 uint32_t SYS_GetSysTickCnt(void);
 
 /**
- * @brief   加载看门狗计数初值，递增型
+ * @brief   Load the initial value of the watchdog count, increasing type
  *
- * @param   c       - 看门狗计数初值
+ * @param   c       - Watchdog count initial value
  */
 #define WWDG_SetCounter(c)    (R8_WDOG_COUNT = c)
 
 /**
- * @brief   看门狗定时器溢出中断使能
+ * @brief   Watchdog timer overflow interrupt enable
  *
- * @param   s       - 溢出是否中断
+ * @param   s       - Overflow interrupt
  */
 void WWDG_ITCfg(FunctionalState s);
 
 /**
- * @brief   看门狗定时器复位功能
+ * @brief   Watchdog timer reset function
  *
- * @param   s       - 溢出是否复位
+ * @param   s       - Overflow reset
  */
 void WWDG_ResetCfg(FunctionalState s);
 
 /**
- * @brief   获取当前看门狗定时器溢出标志
+ * @brief   Get the current watchdog timer overflow flag
  *
  * @return  看门狗定时器溢出标志
  */
 #define WWDG_GetFlowFlag()    (R8_RST_WDOG_CTRL & RB_WDOG_INT_FLAG)
 
 /**
- * @brief   清除看门狗中断标志，重新加载计数值也可清除
+ * @brief   Clear the watchdog interrupt flag, reload the count value to clear it
  */
 void WWDG_ClearFlag(void);
 
