@@ -125,6 +125,25 @@ void dump(uint8_t *buf){
     printf("\r\n");
 }
 #endif
+
+// §ã§à§Ù§Õ§Ñ§ä§î §Ñ§Õ§Ó§Ö§â§ä §Ú §á§â§Ú§Þ§Ö§ß§Ú§ä§î §Ö§Ô§à...
+uint8_t *make_adv(){
+    sprintf(xbuf, "  WC%d.%d:WH%d.%d", __counter_cold, (R8_GLOB_RESET_KEEP), __counter_hot, (R32_TMR1_CNT_END));
+    uint8_t sl = tmos_strlen(xbuf);
+    xbuf[0] = sl-1;
+    xbuf[1] = GAP_ADTYPE_LOCAL_NAME_SHORT;
+
+    tmos_memset(advertData, 0, 30);
+    tmos_memcpy(advertData, ad_template, tmos_strlen(ad_template));
+
+    strcat(advertData, xbuf);
+
+    //GAPRole_SetParameter(GAPROLE_ADVERT_DATA, tmos_strlen(advertData), advertData);
+    GAP_UpdateAdvertisingData(Broadcaster_TaskID, TRUE, 30, advertData );
+    bStatus_t u = tmos_set_event(Broadcaster_TaskID, SBP_START_DEVICE_EVT);
+    PRINT("tmos_set_event() rteturns %d\r\n", u);
+    return xbuf;
+}
 /*********************************************************************
  * PUBLIC FUNCTIONS
  */
@@ -161,6 +180,7 @@ void Broadcaster_Init()
         // adv data: may change at worktime!
         tmos_memset(advertData, 0, 30);
         tmos_memcpy(advertData, ad_template, tmos_strlen(ad_template));
+
         sprintf(xbuf, "  WC%d.%d:WH%d.%d", __counter_cold, (R8_GLOB_RESET_KEEP), __counter_hot, (R32_TMR1_CNT_END));
         uint8_t sl = tmos_strlen(xbuf);
         xbuf[0] = sl-1;
@@ -169,7 +189,7 @@ void Broadcaster_Init()
         strcat(advertData, xbuf);
 
         GAPRole_SetParameter(GAPROLE_ADVERT_DATA, tmos_strlen(advertData), advertData);
-        GAP_UpdateAdvertisingData(Broadcaster_TaskID, TRUE, 30, advertData );
+//        GAP_UpdateAdvertisingData(Broadcaster_TaskID, TRUE, 30, advertData );
     }
 
     // Set advertising interval
@@ -182,6 +202,7 @@ void Broadcaster_Init()
 
     // Setup a delayed profile startup
     tmos_set_event(Broadcaster_TaskID, SBP_START_DEVICE_EVT);   // §Ù§Ñ§á§å§ã§Ü §Þ§Ñ§ñ§Ü§Ñ §é§Ö§â§Ö§Ù §ã§Ú§ã§ä§Ö§Þ§å §ï§Ó§Ö§ß§ä§à§Ó
+    // §Ó§Ö§â§à§ñ§ä§ß§à, §á§à§ã§Ý§Ö §ç§à§Ý§à§Õ§ß§à§Ô§à §ã§ß§Ñ §ï§ä§à§ä §Ü§à§Õ §ä§â§Ö§Ò§å§Ö§ä §á§à§Ó§ä§à§â§Ö§ß§Ú§ñ...
 }
 
 /*********************************************************************

@@ -230,56 +230,56 @@ void RTC_GetTime(uint16_t *py, uint16_t *pmon, uint16_t *pd, uint16_t *ph, uint1
 /**
  * @brief   基于LSE/LSI时钟，配置当前RTC 周期数
  *
- * @param   cyc     - 配置周期计数初值，MAX_CYC = 0xA8BFFFFF = 2831155199
+ * @param   cyc     - Configure the initial value of the cycle count，MAX_CYC = 0xA8BFFFFF = 2831155199
  */
 void RTC_SetCycle32k(uint32_t cyc);
 
 /**
- * @brief   基于LSE/LSI时钟，获取当前RTC 周期数
+ * @brief   Get the current RTC cycle number based on LSE/LSI clock
  *
- * @return  当前周期数，MAX_CYC = 0xA8BFFFFF = 2831155199
+ * @return  Current cycle number，MAX_CYC = 0xA8BFFFFF = 2831155199
  */
 uint32_t RTC_GetCycle32k(void);
 
 /**
- * @brief   RTC定时模式配置（注意定时基准固定为32768Hz）
+ * @brief   RTC timing mode configuration (note that the timing base is fixed to 32768Hz)
  *
  * @param   t   - refer to RTC_TMRCycTypeDef
  */
 void RTC_TRIGFunCfg(uint32_t cyc);
 
 /**
- * @brief   RTC定时模式配置（注意定时基准固定为32768Hz）
+ * @brief   RTC timing mode configuration (note that the timing base is fixed to 32768Hz)
  *
  * @param   t   - refer to RTC_TMRCycTypeDef
  */
 void RTC_TMRFunCfg(RTC_TMRCycTypeDef t);
 
 /**
- * @brief   RTC 模式功能关闭
+ * @brief   RTC mode function is disabled
  *
- * @param   m   - 需要关闭的当前模式
+ * @param   m   - The current mode that needs to be closed
  */
 void RTC_ModeFunDisable(RTC_MODETypeDef m);
 
 /**
- * @brief   获取RTC中断标志
+ * @brief   Get RTC interrupt flag
  *
  * @param   f   - refer to RTC_EVENTTypeDef
  *
- * @return  中断标志状态
+ * @return  Interrupt flag status
  */
 uint8_t RTC_GetITFlag(RTC_EVENTTypeDef f);
 
 /**
- * @brief   清除RTC中断标志
+ * @brief   Clear the RTC interrupt flag
  *
  * @param   f   - refer to RTC_EVENTTypeDef
  */
 void RTC_ClearITFlag(RTC_EVENTTypeDef f);
 
 /**
- * @brief   32K 低频时钟电源配置
+ * @brief   32K Low frequency clock power supply configuration
  */
 void LClk32K_Cfg(LClk32KTypeDef hc, FunctionalState s);
 

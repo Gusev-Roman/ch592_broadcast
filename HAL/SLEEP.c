@@ -17,9 +17,9 @@
 /*******************************************************************************
  * @fn          CH59x_LowPower
  *
- * @brief       启动睡眠
+ * @brief       Start Sleep
  *
- * @param   time    - 唤醒的时间点（RTC绝对值）
+ * @param   time    - Wake-up time (RTC absolute value)
  *
  * @return      state.
  */
@@ -30,7 +30,7 @@ uint32_t CH59x_LowPower(uint32_t time)
     uint32_t time_sleep, time_curr;
     unsigned long irq_status;
     
-    // 提前唤醒
+    // Early wake-up
     if (time <= WAKE_UP_RTC_MAX_TIME) {
         time = time + (RTC_MAX_COUNT - WAKE_UP_RTC_MAX_TIME);
     } else {
@@ -39,7 +39,7 @@ uint32_t CH59x_LowPower(uint32_t time)
 
     SYS_DisableAllIrq(&irq_status);
     time_curr = RTC_GetCycle32k();
-    // 检测睡眠时间
+    // Early wake-up
     if (time < time_curr) {
         time_sleep = time + (RTC_MAX_COUNT - time_curr);
     } else {
@@ -61,13 +61,13 @@ uint32_t CH59x_LowPower(uint32_t time)
         __nop();
     }
   #endif
-    // LOW POWER-sleep模式
-    if(!RTCTigFlag)
+    // LOW POWER-sleep model
+    if(!RTCTigFlag) // Handler moves this to 1
     {
         LowPower_Sleep(RB_PWR_RAM2K | RB_PWR_RAM24K | RB_PWR_EXTEND | RB_XT_PRE_EN );
-        HSECFG_Current(HSE_RCur_100); // 降为额定电流(低功耗函数中提升了HSE偏置电流)
+        HSECFG_Current(HSE_RCur_100); // Reduced to rated current (HSE bias current increased in low power function)
         i = RTC_GetCycle32k();
-        while(i == RTC_GetCycle32k());
+        while(i == RTC_GetCycle32k()); // Delay of 1/32000s
         return 0;
     }
 #endif

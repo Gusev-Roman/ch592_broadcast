@@ -20,6 +20,7 @@
 #include <stdio.h>
 
 void update_counter(uint8_t chan);
+//extern uint8_t *make_adv();
 
 /*********************************************************************
  * GLOBAL TYPEDEFS
@@ -35,8 +36,12 @@ typedef struct __sea {
 #define WC_TAG 0x4357
 #define WH_TAG 0x4857
 
-uint8_t _pulse = 0;
-uint8_t _pulse2 = 0;
+volatile uint32_t _old_time_0 = 0;
+volatile uint32_t _old_time_1 = 0;
+volatile uint8_t is_sleep = 0;
+volatile uint8_t _pulse1 = 0;
+volatile uint8_t _pulse2 = 0;
+volatile uint16_t _wks = 0;
 
 __attribute__((aligned(4))) uint32_t MEM_BUF[BLE_MEMHEAP_SIZE / 4];     // буфер для BLE стека
 
@@ -46,82 +51,69 @@ const uint8_t MacAddr[6] =
 #endif
 
 #define led_pin GPIO_Pin_8
+#define led_pin2 GPIO_Pin_10
+
 SEA s;
 uint8_t led_enable = 1;
-uint32_t test_time = 0;
-uint32_t old_time = 0;
-uint8_t is_sleep = 0;   // 0: working, 1: sleep request 2: sleeping
+//uint32_t test_time = 0;
+
 uint16_t __counter_cold, __counter_hot;
 
-
-__INTERRUPT
-__HIGH_CODE
-void HardFault_Handler(void){
-    PRINT("*** HardFault ***\r\n");
-}
-
-__INTERRUPT
-__HIGH_CODE
-void WDOG_BAT_IRQHandler(){
-    PRINT("*** WDOG_BAT ***\r\n");
-}
-
+/*
+ *  Проблема в том, что мы не знаем, холодный сон или горячий
+ *  при холодном BLE перестает работать!
+ *  Если горячий - менять счетчики надо сразу
+*/
 __INTERRUPT
 __HIGH_CODE
 void GPIOA_IRQHandler(void)
 {
-    test_time =  MS1_TO_SYSTEM_TIME(TMOS_GetSystemClock()); //(R32_RTC_CNT_32K);    // SYS_GetSysTickCnt();
-
+    // не забыть про дребезг
+    uint32_t test_time =  MS1_TO_SYSTEM_TIME(TMOS_GetSystemClock()); //(R32_RTC_CNT_32K);    // SYS_GetSysTickCnt();
     uint32_t f = GPIOA_ReadITFlagBit(GPIO_Pin_4 | GPIO_Pin_5);
 
-    // не забыть про дребезг
     if(is_sleep == 2){
           is_sleep = 0;         // set active
-          _pulse = 1;           // этот пульс не отработает, т.к. предстоит сброс и переменные обнулятся. Увеличим значение в регистре!
-          update_counter(0);
-          PRINT("$$$ Wake %X...\r\n", (R8_GLOB_RESET_KEEP)); // Слово не пропечатывается (?)
+          PRINT("* Wake (%d, %d)...\r\n", (R8_GLOB_RESET_KEEP), (R32_TMR1_CNT_END) & ~0x10000); // Слово не пропечатывается (?)
           GPIOA_ResetBits(led_pin); // LED on
-          //tmos_start_task(halTaskID, LED_TIMER_EXPIRED_EVENT, MS1_TO_SYSTEM_TIME(1000));
-#ifdef USE_RESET
-          sys_safe_access_enable();
-          R8_RST_WDOG_CTRL |= RB_SOFTWARE_RESET;        // принудительный резет, т.к. после выхода он где-то застревает через 15 минут
-          sys_safe_access_disable();
-#endif
-
+          if(f & GPIO_Pin_4){ // update cold
+              _pulse1 = 1;
+          }
+          if(f & GPIO_Pin_5){ // update hot
+              _pulse2 = 1;
+          }
+          // на горячую может случиться сброс и импульс будет потерян!
     }
     else{   // is_sleep == 0
         if(f & GPIO_Pin_4){ // update cold
-            update_counter(0);
+            if(test_time - _old_time_0 > 2000){
+                _pulse1 = 1;
+                _old_time_0 = test_time;
+            }
         }
         if(f & GPIO_Pin_5){ // update hot
-            update_counter(1);
+            if(test_time - _old_time_1 > 2000){
+                _pulse2 = 1;
+                _old_time_1 = test_time;
+            }
         }
-        PRINT("sleep=%d; old:%d; test:%d\r\n", is_sleep, old_time, test_time);
-
-        if(test_time - old_time > 2000){   // около 2 сек для избежания дребезга
-            old_time = test_time;
-            //PRINT("*PULSE*\r\n");
-            _pulse = 1;
-        }
+        PRINT("pulses:%d,%d\r\n", _pulse1, _pulse2);
     }
-    // при просыпании надо запустить таймер, иначе мигалка не работает!
-    PRINT("#%X ", (uint8_t)(R32_TMR1_CNT_END)); // сколько решеток, столько дребезга
-
-    //uint32_t z = GPIOA_ReadITFlagBit(GPIO_Pin_5);
-    PRINT("Interrupt flags: %x\r\n", f);
     GPIOA_ClearITFlagBit(f);
 }
 
 void update_counter(uint8_t chan){
     uint8_t register _cnt;
 
-    if(chan == 0)
+    if(chan == 0){
         _cnt = (R8_GLOB_RESET_KEEP);
+    }
     else{
         // если использовать переменную, ближайший сброс обнулит ее. Попробовать использовать таймер в стоячем режиме
         _cnt = (R32_TMR1_CNT_END);
     }
     _cnt++;
+
     if(_cnt == 101){
         // увеличить основной счетчик!
         if(chan == 0){
@@ -139,8 +131,20 @@ void update_counter(uint8_t chan){
         EEPROM_WRITE(0, &s, sizeof(SEA));
         _cnt = 1;
     }
-    SYS_ResetKeepBuf(_cnt);   // UPDATED VALUE
+    if(chan == 0){
+        SYS_ResetKeepBuf(_cnt);   // UPDATED VALUE
+        _old_time_0 = MS1_TO_SYSTEM_TIME(TMOS_GetSystemClock());   // счетчик увеличился, предотвратим дребезг
+    }
+    else {
+        (R32_TMR1_CNT_END) = _cnt;
+        _old_time_1 = MS1_TO_SYSTEM_TIME(TMOS_GetSystemClock());   // счетчик увеличился, предотвратим дребезг
+        (R32_TMR1_CNT_END) |= 0x10000;                              // set flag to protect by time
+    }
+    PRINT("Counters: %d.%d; %d.%d\r\n", __counter_cold, (R8_GLOB_RESET_KEEP), __counter_hot, (R32_TMR1_CNT_END) & ~0x10000);
 }
+
+extern             tmosTaskID halTaskID;
+
 /*********************************************************************
  * @fn      Main_Circulation
  *
@@ -154,33 +158,42 @@ void Main_Circulation()
 {
     while(1)
     {
-        /**
-         * Прочитать значение счетчика и вставить его в ADV
-         */
-        if(_pulse){
-            uint8_t x8 = (R8_GLOB_RESET_KEEP);      // увеличивать счетчик нужно не по входу в сон, а по импульсу.
-            x8++;
-            if(x8 == 101){
-                x8 = 1;
-                // увеличить основной счетчик!
-                __counter_cold++;
-                // прописать его в EEPROM
-                //sprintf(eebuf, "WC%d.%d\0", __counter, x8);
-                //EEPROM_WRITE(0, eebuf, 16);
-            }
-            SYS_ResetKeepBuf(x8);   // UPDATED VALUE
-            _pulse = 0;
-            PRINT("CNT:%d.%d\r\n", __counter_cold, x8);
+        if(_pulse1){
+            update_counter(0);
+            _pulse1 = 0;
         }
         if(_pulse2){
-
+            update_counter(1);
+            _pulse2 = 0;
         }
-        if(is_sleep == 1){
+        if(is_sleep == 1){              // период активности закончен, отправим спать до нового пульса...
             PRINT("Go Sleep...\r\n");
             is_sleep = 2;
             GPIOA_SetBits(GPIO_Pin_8);  // LED off
-            //LowPower_Halt(); //(RB_PWR_RAM2K);
+            mDelaymS(10);
+
             LowPower_Sleep(RB_PWR_RAM2K | RB_PWR_RAM24K | RB_PWR_EXTEND | RB_XT_PRE_EN);
+            HSECFG_Current(HSE_RCur_100); // Reduced to rated current (HSE bias current increased in low power function)
+            is_sleep = 0;
+
+            PRINT("Wake up, Neo! _pulse1 = %d, _pulse2 = %d\r\n", _pulse1, _pulse2);
+
+            // сюда он дойти до перезапуска успевает! Попробуем обновить счетчики?
+            if(_pulse1){
+                update_counter(0);
+                _pulse1 = 0;
+            }
+            if(_pulse2){
+                update_counter(1);
+                _pulse2 = 0;
+            }
+            // Сон завершен! Счетчики скорректированы. Можно делать сброс!
+#ifdef USE_RESET
+            DelayMs(10);                // time to print messege
+            SYS_ResetExecute();         // принудительный резет, т.к. после выхода он где-то застревает через 15 минут
+#endif
+            // этот код не будет выполнен, т.к. прписходит перезапуск
+            tmos_set_event(halTaskID, LED_TIMER_EXPIRED_EVENT);     // fire event at this moment!
         }
         TMOS_SystemProcess();
     }
@@ -213,6 +226,9 @@ static void load_counter(){
     else{
         __counter_cold = s.val1;
         __counter_hot = s.val2;
+
+        // Тут таится опасность: если младший счетчик был мал, и обнулился, код возьмет дефолтное значение, а оно большое!
+        // хорошо, что такая ситуация происходит только при отключении питания, и пока батарея не села - она не грозит!
         if(0 == (R8_GLOB_RESET_KEEP)){
             SYS_ResetKeepBuf(CNT_BUCKETS);  // если отключалось питание, там лежит ноль, неверно!
             _hcounter = CNT_BUCKETS2;
@@ -235,8 +251,6 @@ static void load_counter(){
 int main(void)
 {
     uint16_t readbuf[8];
-    // bucket counter
-    static uint8_t cbyte = 0;
 
     if(R8_GLOB_RESET_KEEP == 0){
         (R32_TMR1_CNT_END) = CNT_BUCKETS2;      // писать только если R8_GLOB_RESET_KEEP равен нулю.
@@ -245,42 +259,40 @@ int main(void)
     PWR_DCDCCfg(ENABLE);
 #endif
     SetSysClock(CLK_SOURCE_PLL_60MHz);
+
 #if(defined(HAL_SLEEP)) && (HAL_SLEEP == TRUE)
     GPIOA_ModeCfg(GPIO_Pin_All, GPIO_ModeIN_PU);
     GPIOB_ModeCfg(GPIO_Pin_All, GPIO_ModeIN_PU);
 #endif
-    GPIOA_ModeCfg(led_pin, GPIO_ModeOut_PP_5mA);  // A8
+    GPIOA_ModeCfg(led_pin, GPIO_ModeOut_PP_5mA);  // Main LED
 #ifdef DEBUG
     GPIOA_SetBits(bTXD1);
     GPIOA_ModeCfg(bTXD1, GPIO_ModeOut_PP_5mA);
     UART1_DefInit();
 #endif
-    WWDG_ResetCfg(ENABLE);
-    WWDG_ITCfg(ENABLE);
-    GPIOA_ITModeCfg(GPIO_Pin_4, GPIO_ITMode_FallEdge); // A4 as interrupt source for PULSE1
-    GPIOA_ITModeCfg(GPIO_Pin_5, GPIO_ITMode_FallEdge); // A5 as interrupt source for PULSE2
     PFIC_EnableIRQ(GPIO_A_IRQn);
 
-    // в cbyte будет счетчик ведер, как только он достигнет 101 - изменяем значение в EEPROM, в cbyte кладем 1
-    load_counter();     // либо EEPROM либо хардкод
-    cbyte = (R8_GLOB_RESET_KEEP);
+    GPIOA_ITModeCfg(GPIO_Pin_4|GPIO_Pin_5, GPIO_ITMode_FallEdge); // A4 as interrupt source for PULSE1
+    //GPIOA_ITModeCfg(GPIO_Pin_5, GPIO_ITMode_FallEdge); // A5 as interrupt source for PULSE2
 
-    if(!cbyte){ // этот код не сможет исполниться
-        cbyte++;
-        SYS_ResetKeepBuf(cbyte);
-    }
-    PRINT("%s; %x\r\n", VER_LIB, cbyte);
-    CH59x_BLEInit();
+    load_counter();     // либо EEPROM либо хардкод
+
+    PRINT("%s\r\n", VER_LIB);
+    CH59x_BLEInit();            // инициализация стека BLE
     HAL_Init();
     GAPRole_BroadcasterInit();    // library function
     HAL_TimeInit();
     Broadcaster_Init();         // broadcaster.c
 
-    // Do not translate this!
-    // 志 改找抉技 把快忪我技快 技我忍忘扶我快 扶快 把忘忌抉找忘快找. 忱我抉忱 忍抉把我找.
-    //LowPower_Idle();      // go to idle mode
-    //LowPower_Sleep(RB_PWR_RAM2K);
-    PWR_PeriphWakeUpCfg(ENABLE, RB_SLP_GPIO_WAKE | RB_GPIO_WAKE_MODE, Long_Delay);  // enable wake up by GPIO
+    PRINT("*** R8_RESET_STATUS =%02x\r\n", R8_RESET_STATUS & 0x07);
+    // поскольку сброс приходит в момент пульса, а счетчик изменялся перед сбросом, нужно защитить от дребезга.
+    // Но очень желательно знать, какой из счетчиков требуется защитить
+    if((R32_TMR1_CNT_END) & 0x10000) _old_time_1 = MS1_TO_SYSTEM_TIME(TMOS_GetSystemClock());
+    // теперь мы защитили только тот пин, который привел к сбросу
+    else _old_time_0 = MS1_TO_SYSTEM_TIME(TMOS_GetSystemClock());
+    (R32_TMR1_CNT_END) &= ~0x10000;                                     // Reset flag, time is loaded
+
+    PWR_PeriphWakeUpCfg(ENABLE, RB_SLP_GPIO_WAKE, Long_Delay);  // enable wake up by GPIO
     Main_Circulation(); // loop forewer
 }
 

@@ -239,7 +239,7 @@ void WWDG_ResetCfg(FunctionalState s)
 /*********************************************************************
  * @fn      WWDG_ClearFlag
  *
- * @brief   清除看门狗中断标志，重新加载计数值也可清除
+ * @brief   Clear the watchdog interrupt flag, reload the count value to clear it
  *
  * @param   none
  *

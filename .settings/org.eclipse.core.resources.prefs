@@ -7,5 +7,6 @@ encoding//LIB/CH59xBLE_LIB.h=GBK
 encoding//LIB/CH59xBLE_ROM.h=GBK
 encoding//RVMSIS/core_riscv.c=GBK
 encoding//Startup/startup_CH592.S=UTF-8
+encoding//StdPeriphDriver/CH59x_clk.c=UTF-8
 encoding//StdPeriphDriver/CH59x_sys.c=GBK
 encoding/LICENSE=GBK
