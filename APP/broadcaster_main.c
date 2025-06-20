@@ -33,6 +33,11 @@ typedef struct __sea {
     uint16_t val2;
 }SEA;
 
+#define CNT_CUBES 902
+#define CNT_BUCKETS 76
+#define CNT_CUBES2 362
+#define CNT_BUCKETS2 16
+
 #define WC_TAG 0x4357
 #define WH_TAG 0x4857
 
@@ -54,8 +59,6 @@ const uint8_t MacAddr[6] =
 #define led_pin2 GPIO_Pin_10
 
 SEA s;
-uint8_t led_enable = 1;
-//uint32_t test_time = 0;
 
 uint16_t __counter_cold, __counter_hot;
 
@@ -198,10 +201,6 @@ void Main_Circulation()
         TMOS_SystemProcess();
     }
 }
-#define CNT_CUBES 898
-#define CNT_BUCKETS 90
-#define CNT_CUBES2 360
-#define CNT_BUCKETS2 68
 
 static void load_counter(){
     uint8_t _lcounter, _hcounter;   // эти переменные действуют только в этой процедуре

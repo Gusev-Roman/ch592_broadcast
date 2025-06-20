@@ -127,6 +127,7 @@ void dump(uint8_t *buf){
 #endif
 
 // §ã§à§Ù§Õ§Ñ§ä§î §Ñ§Õ§Ó§Ö§â§ä §Ú §á§â§Ú§Þ§Ö§ß§Ú§ä§î §Ö§Ô§à...
+/*
 uint8_t *make_adv(){
     sprintf(xbuf, "  WC%d.%d:WH%d.%d", __counter_cold, (R8_GLOB_RESET_KEEP), __counter_hot, (R32_TMR1_CNT_END));
     uint8_t sl = tmos_strlen(xbuf);
@@ -144,6 +145,7 @@ uint8_t *make_adv(){
     PRINT("tmos_set_event() rteturns %d\r\n", u);
     return xbuf;
 }
+*/
 /*********************************************************************
  * PUBLIC FUNCTIONS
  */
@@ -181,7 +183,7 @@ void Broadcaster_Init()
         tmos_memset(advertData, 0, 30);
         tmos_memcpy(advertData, ad_template, tmos_strlen(ad_template));
 
-        sprintf(xbuf, "  WC%d.%d:WH%d.%d", __counter_cold, (R8_GLOB_RESET_KEEP), __counter_hot, (R32_TMR1_CNT_END));
+        sprintf(xbuf, "  WC%d.%d:WH%d.%d", __counter_cold, (R8_GLOB_RESET_KEEP) - 1, __counter_hot, ((R32_TMR1_CNT_END) & ~0x10000)-1);
         uint8_t sl = tmos_strlen(xbuf);
         xbuf[0] = sl-1;
         xbuf[1] = GAP_ADTYPE_LOCAL_NAME_SHORT;
