@@ -24,7 +24,7 @@
 /***************************************************
  * Global variables
  */
-volatile uint32_t RTCTigFlag;
+volatile BOOL RTCTigFlag;
 
 /*******************************************************************************
  * @fn      RTC_SetTignTime
@@ -37,9 +37,7 @@ volatile uint32_t RTCTigFlag;
  */
 void RTC_SetTignTime(uint32_t time)
 {
-    sys_safe_access_enable();
-    R32_RTC_TRIG = time;
-    sys_safe_access_disable();
+    u32_reg_write_with_safe_access(&(R32_RTC_TRIG), time);
     RTCTigFlag = 0;
 }
 
@@ -58,6 +56,7 @@ void RTC_IRQHandler(void)
 {
     R8_RTC_FLAG_CTRL = (RB_RTC_TMR_CLR | RB_RTC_TRIG_CLR);
     RTCTigFlag = 1;
+    HAL_SLEEP_IRQ_POSTPROCESS();
 }
 
 /*******************************************************************************
@@ -72,7 +71,7 @@ void RTC_IRQHandler(void)
 __HIGH_CODE
 static uint32_t SYS_GetClockValue(void)
 {
-    volatile uint32_t i;
+    uint32_t i;
 
     do
     {

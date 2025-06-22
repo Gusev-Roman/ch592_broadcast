@@ -340,6 +340,28 @@ void mDelaymS(uint16_t t)
     }
 }
 
+__attribute__((noinline))
+__HIGH_CODE
+void u32_reg_write_with_safe_access(uint32_t volatile *reg, uint32_t val)
+{
+    irq_ctx_t irq_ctx = irq_save_ctx_and_disable();
+    sys_safe_access_enter();
+    *reg = val;
+    sys_safe_access_exit();
+    irq_restore_ctx(irq_ctx);
+}
+
+__attribute__((noinline))
+__HIGH_CODE
+void u8_reg_write_with_safe_access(uint8_t volatile *reg, uint8_t val)
+{
+    irq_ctx_t irq_ctx = irq_save_ctx_and_disable();
+    sys_safe_access_enter();
+    *reg = val;
+    sys_safe_access_exit();
+    irq_restore_ctx(irq_ctx);
+}
+
 #ifdef DEBUG
 int _write(int fd, char *buf, int size)
 {

@@ -327,7 +327,7 @@ void LowPower_Sleep(uint16_t rm)
         sys_safe_access_disable();
     }
 
-    __WFI();
+    __WFE();
     __nop();
     __nop();
 

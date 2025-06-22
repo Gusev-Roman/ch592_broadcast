@@ -24,6 +24,7 @@
  */
 void GPIOA_ModeCfg(uint32_t pin, GPIOModeTypeDef mode)
 {
+    irq_ctx_t irq_ctx = irq_save_ctx_and_disable();
     switch(mode)
     {
         case GPIO_ModeIN_Floating:
@@ -57,6 +58,7 @@ void GPIOA_ModeCfg(uint32_t pin, GPIOModeTypeDef mode)
         default:
             break;
     }
+    irq_restore_ctx(irq_ctx);
 }
 
 /*********************************************************************
@@ -118,6 +120,7 @@ void GPIOB_ModeCfg(uint32_t pin, GPIOModeTypeDef mode)
  */
 void GPIOA_ITModeCfg(uint32_t pin, GPIOITModeTpDef mode)
 {
+    irq_ctx_t irq_ctx = irq_save_ctx_and_disable();
     switch(mode)
     {
         case GPIO_ITMode_LowLevel: // µÕµÁ∆Ω¥•∑¢
@@ -145,6 +148,47 @@ void GPIOA_ITModeCfg(uint32_t pin, GPIOITModeTpDef mode)
     }
     R16_PA_INT_IF = pin;
     R16_PA_INT_EN |= pin;
+    irq_restore_ctx(irq_ctx);
+}
+
+/*********************************************************************
+ * @fn      GPIOA_GetITMode
+ *
+ * @brief   GPIOA interrupt mode
+ *
+ * @param   pin     - PA0-PA15
+ *
+ * @return  interrupt mode
+ * @note:   valid only if pin is configured as input
+ */
+GPIOITModeTpDef GPIOA_GetITMode(uint32_t pin)
+{
+    irq_ctx_t irq_ctx = irq_save_ctx_and_disable();
+    uint16_t int_mode = R16_PA_INT_MODE & pin;
+    uint32_t state = R32_PA_OUT & pin;
+    irq_restore_ctx(irq_ctx);
+    if(int_mode) // edge trigger
+    {
+        if(state) // rise
+        {
+            return GPIO_ITMode_RiseEdge;
+        }
+        else // fall
+        {
+            return GPIO_ITMode_FallEdge;
+        }
+    }
+    else // level trigger
+    {
+        if(state) // high
+        {
+            return GPIO_ITMode_HighLevel;
+        }
+        else // low
+        {
+            return GPIO_ITMode_LowLevel;
+        }
+    }
 }
 
 /*********************************************************************

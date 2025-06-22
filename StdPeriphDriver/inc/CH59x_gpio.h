@@ -169,6 +169,18 @@ void GPIOB_ModeCfg(uint32_t pin, GPIOModeTypeDef mode);
  */
 void GPIOA_ITModeCfg(uint32_t pin, GPIOITModeTpDef mode);
 
+/*********************************************************************
+ * @fn      GPIOA_GetITMode
+ *
+ * @brief   GPIOA interrupt mode
+ *
+ * @param   pin     - PA0-PA15
+ *
+ * @return  interrupt mode
+ * @note:   valid only if pin is configured as input
+ */
+GPIOITModeTpDef GPIOA_GetITMode(uint32_t pin);
+
 /**
  * @brief   GPIOB引脚中断模式配置
  *

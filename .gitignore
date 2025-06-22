@@ -51,3 +51,4 @@ Module.symvers
 Mkfile.old
 dkms.conf
 obj/*
+obj_ch58x/*

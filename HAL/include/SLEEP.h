@@ -21,6 +21,7 @@ extern "C" {
 /*********************************************************************
  * GLOBAL VARIABLES
  */
+extern volatile BOOL hal_sleep_no_low_power_flag;
 
 /*********************************************************************
  * FUNCTIONS
@@ -31,6 +32,11 @@ extern "C" {
  */
 extern void HAL_SleepInit(void);
 
+static inline void HAL_SLEEP_IRQPostProcess(void)
+{
+    hal_sleep_no_low_power_flag = TRUE;
+}
+
 /**
  * @brief   Æô¶¯Ë¯Ãß
  *
@@ -39,6 +45,13 @@ extern void HAL_SleepInit(void);
  * @return  state.
  */
 extern uint32_t CH59x_LowPower(uint32_t time);
+
+#if(defined(HAL_SLEEP)) && (HAL_SLEEP == TRUE)
+#define HAL_SLEEP_IRQ_POSTPROCESS()             HAL_SLEEP_IRQPostProcess();
+#else
+#define HAL_SLEEP_IRQ_POSTPROCESS()
+#endif
+
 
 /*********************************************************************
 *********************************************************************/
