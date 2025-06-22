@@ -74,7 +74,7 @@ uint32_t CH59x_LowPower(uint32_t time)
         // Because there may be interrupts
         // longer than one RTC step
         irq_ctx = irq_save_ctx_and_disable();
-        i = RTC_GetCycle32k() + 2;
+        i = RTC_GetCycle32k();
         while(i == RTC_GetCycle32k());
         HSECFG_Current(HSE_RCur_100); // Reduced to rated current (HSE bias current increased in low power function)
     }
