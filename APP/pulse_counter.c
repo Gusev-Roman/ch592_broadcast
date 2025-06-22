@@ -23,9 +23,10 @@ void GPIOA_IRQHandler(void)
 
     if(f & GPIO_PULSE_COUNTER_COLD_PIN)
     {
+        // §à§Ò§ñ§Ù§Ñ§ä§Ö§Ý§î§ß§à §ã§ß§Ñ§é§Ñ§Ý§Ñ §à§ä§Ü§Ý§ð§é§Ñ§Ö§Þ §á§â§Ö§â§í§Ó§Ñ§ß§Ú§ñ §Õ§Ý§ñ §ï§ä§à§Ô§à §á§Ú§ß§Ñ,
+        R16_PA_INT_EN &= ~(GPIO_PULSE_COUNTER_COLD_PIN); // §à§ä§Ü§Ý§ð§é§Ñ§Ö§Þ §á§â§Ö§â§í§Ó§Ñ§ß§Ú§Ö §Ú §á§â§à§Ò§å§Ø§Õ§Ö§ß§Ú§Ö §á§à §ï§ä§à§Þ§å §Ü§à§ß§Ü§â§Ö§ä§ß§à§Þ§å §á§Ú§ß§å
         // §æ§Ý§Ñ§Ô§Ú §é§Ú§ã§ä§Ú§Þ §â§Ñ§Ù§Õ§Ö§Ý§î§ß§à, §á§à§ã§Ü§à§Ý§î§Ü§å §Þ§à§Ø§Ö§ä §Ò§í§ä§î §Ô§à§ß§Ü§Ñ §Õ§Ñ§ß§ß§í§ç
         GPIOA_ClearITFlagBit(GPIO_PULSE_COUNTER_COLD_PIN);
-        R16_PA_INT_EN &= ~(GPIO_PULSE_COUNTER_COLD_PIN); // §à§ä§Ü§Ý§ð§é§Ñ§Ö§Þ §á§â§Ö§â§í§Ó§Ñ§ß§Ú§Ö §Ú §á§â§à§Ò§å§Ø§Õ§Ö§ß§Ú§Ö §á§à §ï§ä§à§Þ§å §Ü§à§ß§Ü§â§Ö§ä§ß§à§Þ§å §á§Ú§ß§å
         pulse_trigger_flag_cold = TRUE;
         switch(GPIOA_GetITMode(GPIO_PULSE_COUNTER_COLD_PIN))
         {
@@ -44,8 +45,8 @@ void GPIOA_IRQHandler(void)
 
     if(f & GPIO_PULSE_COUNTER_HOT_PIN)
     {
-        GPIOA_ClearITFlagBit(GPIO_PULSE_COUNTER_HOT_PIN);
         R16_PA_INT_EN &= ~(GPIO_PULSE_COUNTER_HOT_PIN);
+        GPIOA_ClearITFlagBit(GPIO_PULSE_COUNTER_HOT_PIN);
         pulse_trigger_flag_hot = TRUE;
         switch(GPIOA_GetITMode(GPIO_PULSE_COUNTER_HOT_PIN))
         {
@@ -91,14 +92,17 @@ void PulseCounter_prosess(void)
         tmos_start_task(Broadcaster_TaskID, SBP_TIMEOUT_COLD_EVT, GPIO_PULSE_COUNTER_COLD_DEBOUNCE_TIME_TICKS);
         if(registered_state_cold == 0)
         {
+            PRINT("Pulse hot=%u, cold=%u\n", pulse_count_hot, pulse_count_cold);
             Broadcaster_update_pulse_counter_advertising(pulse_count_hot, pulse_count_cold);
         }
     }
     if(pulse_trigger_flag_hot)
     {
+        pulse_trigger_flag_hot = FALSE;
         tmos_start_task(Broadcaster_TaskID, SBP_TIMEOUT_HOT_EVT, GPIO_PULSE_COUNTER_HOT_DEBOUNCE_TIME_TICKS);
         if(registered_state_hot == 0)
         {
+            PRINT("Pulse hot=%u, cold=%u\n", pulse_count_hot, pulse_count_cold);
             Broadcaster_update_pulse_counter_advertising(pulse_count_hot, pulse_count_cold);
         }
     }
