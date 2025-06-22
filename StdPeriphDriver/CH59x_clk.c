@@ -98,9 +98,7 @@ void HSECFG_Current(HSECurrentTypeDef c)
     x32M_c = R8_XT32M_TUNE;
     x32M_c = (x32M_c & 0xfc) | (c & 0x03);
 
-    sys_safe_access_enable();
-    R8_XT32M_TUNE = x32M_c;
-    sys_safe_access_disable();
+    u8_reg_write_with_safe_access(&(R8_XT32M_TUNE), x32M_c);
 }
 
 /*********************************************************************
@@ -498,7 +496,7 @@ void RTC_SetCycle32k(uint32_t cyc)
 __HIGH_CODE
 uint32_t RTC_GetCycle32k(void)
 {
-    volatile uint32_t i;
+    uint32_t i;
 
     do
     {

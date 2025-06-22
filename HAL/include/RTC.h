@@ -39,7 +39,7 @@ extern "C" {
 #define US_TO_RTC(us)               ((uint32_t)((us) * CLK_PER_US + 0.5))
 #define MS_TO_RTC(ms)               ((uint32_t)((ms) * CLK_PER_MS + 0.5))
 
-extern volatile uint32_t RTCTigFlag;
+extern volatile BOOL RTCTigFlag;
 
 /**
  * @brief   Initialize time Service.

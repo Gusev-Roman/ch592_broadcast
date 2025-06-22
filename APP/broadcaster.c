@@ -18,6 +18,7 @@
 #include "CONFIG.h"
 #include "devinfoservice.h"
 #include "broadcaster.h"
+#include "pulse_counter.h"
 
 /*********************************************************************
  * MACROS
@@ -28,10 +29,12 @@
  */
 
 // What is the advertising interval when device is discoverable (units of 625us, min is 160=100ms)
-#define DEFAULT_ADVERTISING_INTERVAL    160
+#define DEFAULT_ADVERTISING_INTERVAL    320
 
 // Company Identifier: WCH
 #define WCH_COMPANY_ID                  0x07D7
+
+#define SOME_COMPANY_ID                 0xAABB
 
 // Length of bd addr as a string
 #define B_ADDR_STR_LEN                  15
@@ -51,11 +54,11 @@
 /*********************************************************************
  * EXTERNAL FUNCTIONS
  */
-extern uint16_t __counter_cold, __counter_hot;
+
 /*********************************************************************
  * LOCAL VARIABLES
  */
-static uint8_t Broadcaster_TaskID; // Task ID for internal task/event processing
+uint8_t Broadcaster_TaskID; // Task ID for internal task/event processing
 
 // GAP - SCAN RSP data (max size = 31 bytes)
 static uint8_t scanRspData[] = {
@@ -80,7 +83,7 @@ static uint8_t scanRspData[] = {
 
 // GAP - Advertisement data (max size = 31 bytes, though this is
 // best kept short to conserve power while advertisting)
-static uint8_t advertData[30];
+//static uint8_t advertData[30];
 
 uint8_t ad_template[] = {
     // Flags; this sets the device to use limited discoverable
@@ -88,17 +91,17 @@ uint8_t ad_template[] = {
     // discoverable mode (advertises indefinitely)
     0x02, // length of this data
     GAP_ADTYPE_FLAGS,
-    GAP_ADTYPE_FLAGS_BREDR_NOT_SUPPORTED
+    GAP_ADTYPE_FLAGS_BREDR_NOT_SUPPORTED,
 
     // Broadcast of the data
-    /*
+
     0x04,                             // length of this data including the data type byte
     GAP_ADTYPE_MANUFACTURER_SPECIFIC, // manufacturer specific advertisement data type
     'b', 'l', 'e',
 
-    0x0A, GAP_ADTYPE_LOCAL_NAME_SHORT,
-    'i', 'P', 'h','o','n','e','1','5',0
-    */
+//    0x0A, GAP_ADTYPE_LOCAL_NAME_SHORT,
+//    'i', 'P', 'h','o','n','e','1','5',0
+//    */
 };
 
 char xbuf[32];
@@ -177,35 +180,84 @@ void Broadcaster_Init()
         GAPRole_SetParameter(GAPROLE_ADVERT_ENABLED, sizeof(uint8_t), &initial_advertising_enable);
         // adv only, device cannot be connected!
         GAPRole_SetParameter(GAPROLE_ADV_EVENT_TYPE, sizeof(uint8_t), &initial_adv_event_type);
-        // unused data?
-        GAPRole_SetParameter(GAPROLE_SCAN_RSP_DATA, sizeof(scanRspData), scanRspData);
-        // adv data: may change at worktime!
-        tmos_memset(advertData, 0, 30);
-        tmos_memcpy(advertData, ad_template, tmos_strlen(ad_template));
+        // Set advertising interval
+        {
+            uint16_t advInt = DEFAULT_ADVERTISING_INTERVAL;
 
-        sprintf(xbuf, "  WC%d.%d:WH%d.%d", __counter_cold, (R8_GLOB_RESET_KEEP) - 1, __counter_hot, ((R32_TMR1_CNT_END) & ~0x10000)-1);
-        uint8_t sl = tmos_strlen(xbuf);
-        xbuf[0] = sl-1;
-        xbuf[1] = GAP_ADTYPE_LOCAL_NAME_SHORT;
+            GAP_SetParamValue(TGAP_DISC_ADV_INT_MIN, advInt);
+            GAP_SetParamValue(TGAP_DISC_ADV_INT_MAX, advInt);
+        }
 
-        strcat(advertData, xbuf);
-
-        GAPRole_SetParameter(GAPROLE_ADVERT_DATA, tmos_strlen(advertData), advertData);
-//        GAP_UpdateAdvertisingData(Broadcaster_TaskID, TRUE, 30, advertData );
-    }
-
-    // Set advertising interval
-    {
-        uint16_t advInt = DEFAULT_ADVERTISING_INTERVAL;
-
-        GAP_SetParamValue(TGAP_DISC_ADV_INT_MIN, advInt);
-        GAP_SetParamValue(TGAP_DISC_ADV_INT_MAX, (advInt << 1));
+        // §¥§Ñ§ß§ß§í§Ö §Ñ§Õ§Ó§Ö§â§ä§Ñ§Û§Ù§Ú§ß§Ô§Ñ §å§ã§ä§Ñ§ß§à§Ó§ñ§ä§ã§ñ §Ó PulseCounter
     }
 
     // Setup a delayed profile startup
     tmos_set_event(Broadcaster_TaskID, SBP_START_DEVICE_EVT);   // §Ù§Ñ§á§å§ã§Ü §Þ§Ñ§ñ§Ü§Ñ §é§Ö§â§Ö§Ù §ã§Ú§ã§ä§Ö§Þ§å §ï§Ó§Ö§ß§ä§à§Ó
-    // §Ó§Ö§â§à§ñ§ä§ß§à, §á§à§ã§Ý§Ö §ç§à§Ý§à§Õ§ß§à§Ô§à §ã§ß§Ñ §ï§ä§à§ä §Ü§à§Õ §ä§â§Ö§Ò§å§Ö§ä §á§à§Ó§ä§à§â§Ö§ß§Ú§ñ...
 }
+
+/*********************************************************************
+ * @fn      Broadcaster_update_pulse_counter_advertising
+ *
+ * @brief
+ *
+ * @param   task_id - the ID assigned by TMOS.  This ID should be
+ *                    used to send messages and set timers.
+ *
+ * @return  none
+ */
+bStatus_t Broadcaster_update_pulse_counter_advertising(uint32_t pulse_count_hot, uint32_t pulse_count_cold)
+{
+    uint8_t ad_data[] = {
+
+        0x02, // length of this data
+        GAP_ADTYPE_FLAGS,
+        GAP_ADTYPE_FLAGS_GENERAL | GAP_ADTYPE_FLAGS_BREDR_NOT_SUPPORTED,
+
+        // Broadcast of the data
+
+        0x0B,                             // length of this data including the data type byte
+        GAP_ADTYPE_MANUFACTURER_SPECIFIC, // manufacturer specific advertisement data type
+        LO_UINT16(SOME_COMPANY_ID),
+        HI_UINT16(SOME_COMPANY_ID),
+        0x00,0x00,0x00,0x00, // cold water placeholder little endian
+        0x00,0x00,0x00,0x00, // hot water placeholder little endian
+    };
+
+    const int cold_water_pulse_cnt_offset = 7;
+    const int hot_water_pulse_cnt_offset = 11;
+
+    tmos_memcpy(&(ad_data[cold_water_pulse_cnt_offset]), &pulse_count_cold, sizeof(pulse_count_cold));
+    tmos_memcpy(&(ad_data[hot_water_pulse_cnt_offset]), &pulse_count_hot, sizeof(pulse_count_hot));
+
+    uint8_t gap_state;
+    GAPRole_GetParameter(GAPROLE_STATE, &gap_state);
+
+    bStatus_t adv_upd_status;
+    switch(gap_state)
+    {
+        case GAPROLE_INIT:
+        case GAPROLE_STARTED:
+        case GAPROLE_WAITING:
+        case GAPROLE_CONNECTED:
+        {
+            adv_upd_status = GAPRole_SetParameter(GAPROLE_ADVERT_DATA, sizeof(ad_data), ad_data);
+            break;
+        }
+        case GAPROLE_ADVERTISING:
+        case GAPROLE_CONNECTED_ADV:
+        {
+            adv_upd_status = GAP_UpdateAdvertisingData(Broadcaster_TaskID, TRUE, sizeof(ad_data), ad_data);
+            break;
+        }
+        default:
+        {
+            adv_upd_status = bleNotReady;
+            break;
+        }
+    }
+        return adv_upd_status;
+}
+
 
 /*********************************************************************
  * @fn      Broadcaster_ProcessEvent
@@ -236,6 +288,16 @@ uint16_t Broadcaster_ProcessEvent(uint8_t task_id, uint16_t events)
 
         // return unprocessed events
         return (events ^ SYS_EVENT_MSG);
+    }
+    if(events & SBP_TIMEOUT_COLD_EVT)
+    {
+        PulseCounter_on_timer_cold();
+        return (events ^ SBP_TIMEOUT_COLD_EVT);
+    }
+    if(events & SBP_TIMEOUT_HOT_EVT)
+    {
+        PulseCounter_on_timer_hot();
+        return (events ^ SBP_TIMEOUT_HOT_EVT);
     }
 
     if(events & SBP_START_DEVICE_EVT)

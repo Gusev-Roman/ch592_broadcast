@@ -14,10 +14,12 @@
 /* Header file contains */
 #include "HAL.h"
 
+#define led_pin GPIO_Pin_8
+
+
 tmosTaskID halTaskID;
 uint32_t g_LLE_IRQLibHandlerLocation;
 
-extern uint8_t is_sleep;
 /*******************************************************************************
  * @fn      Lib_Calibration_LSI
  *
@@ -176,7 +178,6 @@ void CH59x_BLEInit(void)
     }
 }
 
-extern volatile uint16_t _wks;
 /*******************************************************************************
  * @fn      HAL_ProcessEvent
  *
@@ -205,20 +206,7 @@ tmosEvents HAL_ProcessEvent(tmosTaskID task_id, tmosEvents events)
     }
     if(events & LED_TIMER_EXPIRED_EVENT)
     {
-        if(is_sleep == 0){
-            _wks++;
-            if(_wks % 50 == 0) PRINT("wks:%d\r\n", _wks);
-            if(_wks == 5 * 60) {
-                is_sleep = 1;                 // req to sleep
-                _wks = 0;
-            }
-        }
-        else{
-            PRINT("is_sleep!=0; wks=%d ", _wks);
-        }
-        GPIOA_InverseBits(GPIO_Pin_8);  // A8 §ï§ä§à §ã§Ó§Ö§ä§à§Õ§Ú§à§Õ
-        // §Ù§Ñ§á§å§ã§Ü§Ñ§Ö§Þ §à§Õ§ß§à§â§Ñ§Ù§à§Ó§å§ð §Ù§Ñ§Õ§Ñ§é§å, §Ü§à§ä§à§â§Ñ§ñ §á§â§Ú§Ó§Ö§Õ§Ö§ä §Ó §ï§ä§à §Ø§Ö §Þ§Ö§ã§ä§à
-        tmos_start_task(halTaskID, LED_TIMER_EXPIRED_EVENT, MS1_TO_SYSTEM_TIME(200));
+        GPIOA_InverseBits(led_pin);
         return (events ^ LED_TIMER_EXPIRED_EVENT); // §ã§Ò§â§à§ã§Ú§Ý§Ú §á§â§Ú§Ù§ß§Ñ§Ü §ï§Ó§Ö§ß§ä§Ñ, §à§ß §à§Ò§ã§Ý§å§Ø§Ö§ß
     }
 
@@ -289,7 +277,8 @@ void HAL_Init()
     tmos_start_task(halTaskID, HAL_REG_INIT_EVENT, 800); // Added calibration task, started in 500ms, single calibration takes less than 10ms
 #endif
 //    tmos_start_task( halTaskID, HAL_TEST_EVENT, 1600 );    // Add a test task
-    tmos_set_event(halTaskID, LED_TIMER_EXPIRED_EVENT);     // §ß§Ö§á§à§ã§â§Ö§Õ§ã§ä§Ó§Ö§ß§ß§í§Û §Õ§â§à§á §ï§Ó§Ö§ß§ä§Ñ
+    GPIOA_ModeCfg(led_pin, GPIO_ModeOut_PP_5mA);  // Main LED
+    tmos_start_reload_task(halTaskID, LED_TIMER_EXPIRED_EVENT, MS1_TO_SYSTEM_TIME(200));
 }
 
 /*******************************************************************************

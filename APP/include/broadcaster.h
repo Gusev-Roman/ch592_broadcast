@@ -29,6 +29,8 @@ extern "C" {
 #define SBP_START_DEVICE_EVT         0x0001
 #define SBP_PERIODIC_EVT             0x0002
 #define SBP_ADV_IN_CONNECTION_EVT    0x0004
+#define SBP_TIMEOUT_COLD_EVT         0x0008
+#define SBP_TIMEOUT_HOT_EVT          0x0010
 
 #define SL_ACTIVE 0
 #define SL_REQ 1
@@ -38,6 +40,8 @@ extern "C" {
  * MACROS
  */
 
+extern uint8_t Broadcaster_TaskID;
+
 /*********************************************************************
  * FUNCTIONS
  */
@@ -46,6 +50,8 @@ extern "C" {
  * Task Initialization for the BLE Broadcaster Application
  */
 extern void Broadcaster_Init(void);
+
+bStatus_t Broadcaster_update_pulse_counter_advertising(uint32_t pulse_count_hot, uint32_t pulse_count_cold);
 
 /*
  * Task Event Processor for the BLE Broadcaster Application

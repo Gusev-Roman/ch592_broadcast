@@ -182,6 +182,24 @@ void mDelaymS(uint16_t t);
 
 #define sys_safe_access_disable()       R8_SAFE_ACCESS_SIG = 0;__risc_v_enable_irq(mpie_mie);SAFEOPERATE;}while(0)
 
+__attribute__((always_inline)) __attribute__((optimize("-Os"))) static inline void sys_safe_access_enter(void)
+{
+    SAFEOPERATE;
+    R8_SAFE_ACCESS_SIG = SAFE_ACCESS_SIG1;
+    R8_SAFE_ACCESS_SIG = SAFE_ACCESS_SIG2;
+    SAFEOPERATE;
+}
+
+__attribute__((always_inline)) __attribute__((optimize("-Os"))) static inline void sys_safe_access_exit(void)
+{
+    R8_SAFE_ACCESS_SIG = 0;
+    SAFEOPERATE;
+}
+
+void u32_reg_write_with_safe_access(uint32_t volatile *reg, uint32_t val);
+
+void u8_reg_write_with_safe_access(uint8_t volatile *reg, uint8_t val);
+
 #ifdef __cplusplus
 }
 #endif
