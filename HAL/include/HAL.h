@@ -25,11 +25,11 @@ extern "C" {
 #include "KEY.h"
 
 /* hal task Event */
-#define LED_BLINK_EVENT       0x0001
-#define HAL_KEY_EVENT         0x0002
-#define LED_TIMER_EXPIRED_EVENT      0x0008 /*§Õ§à§Ò§Ñ§Ó§Ú§Ý§Ú §Ò§Ú§ä§à§Ó§å§ð §Þ§Ñ§ã§Ü§å, §à§ä§Ý§Ú§é§ß§å§ð §à§ä §å§Ø§Ö §Ú§Þ§Ö§ð§ë§Ú§ç§ã§ñ*/
-#define HAL_REG_INIT_EVENT    0x2000
-#define HAL_TEST_EVENT        0x4000
+#define LED_BLINK_EVENT             0x0001
+#define HAL_KEY_EVENT               0x0002
+#define LED_TIMER_EXPIRED_EVENT     0x0008 /*§Õ§à§Ò§Ñ§Ó§Ú§Ý§Ú §Ò§Ú§ä§à§Ó§å§ð §Þ§Ñ§ã§Ü§å, §à§ä§Ý§Ú§é§ß§å§ð §à§ä §å§Ø§Ö §Ú§Þ§Ö§ð§ë§Ú§ç§ã§ñ*/
+#define HAL_REG_INIT_EVENT          0x2000
+#define HAL_TEST_EVENT              0x4000
 
 /*********************************************************************
  * GLOBAL VARIABLES
