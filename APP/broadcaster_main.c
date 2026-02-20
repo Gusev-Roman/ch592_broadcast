@@ -77,17 +77,19 @@ void GPIOA_IRQHandler(void)
 
     if(is_sleep == 2){
           is_sleep = 0;         // set active
-          PRINT("* Wake (%d, %d)...\r\n", (R8_GLOB_RESET_KEEP), (R32_TMR1_CNT_END) & ~0x10000); // Слово не пропечатывается (?)
+        // Из обработчиков лучше убрать любые принты 
+        // PRINT("* Wake (%d, %d)...\r\n", (R8_GLOB_RESET_KEEP), (R32_TMR1_CNT_END) & ~0x10000);
           GPIOA_ResetBits(led_pin); // LED on
         /*
-        Допустим, _pulse2 == 1, а пришел _pulse1
-        _pulse1 поменяется на 1 (правильно), а _pulse2 останется 1 (неправильно)
+        _pulse1 и _pulse1 будут обнулены при увеличении счетчиков. Ошибки тут нет
         */
           if(f & GPIO_Pin_4){ // update cold
               _pulse1 = 1;
+              _old_time_0 = test_time;    // это первый импульс в серии, и он задает опорное время для остальных
           }
           if(f & GPIO_Pin_5){ // update hot
               _pulse2 = 1;
+              _old_time_1 = test_time;
           }
           // на горячую может случиться сброс и импульс будет потерян!
     }
@@ -300,4 +302,5 @@ int main(void)
 }
 
 /******************************** endfile @ main ******************************/
+
 
