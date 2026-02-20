@@ -79,6 +79,10 @@ void GPIOA_IRQHandler(void)
           is_sleep = 0;         // set active
           PRINT("* Wake (%d, %d)...\r\n", (R8_GLOB_RESET_KEEP), (R32_TMR1_CNT_END) & ~0x10000); // Слово не пропечатывается (?)
           GPIOA_ResetBits(led_pin); // LED on
+        /*
+        Допустим, _pulse2 == 1, а пришел _pulse1
+        _pulse1 поменяется на 1 (правильно), а _pulse2 останется 1 (неправильно)
+        */
           if(f & GPIO_Pin_4){ // update cold
               _pulse1 = 1;
           }
@@ -296,3 +300,4 @@ int main(void)
 }
 
 /******************************** endfile @ main ******************************/
+
