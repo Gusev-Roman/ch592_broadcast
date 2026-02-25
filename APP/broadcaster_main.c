@@ -275,10 +275,9 @@ int main(void)
     GPIOA_ModeCfg(bTXD1, GPIO_ModeOut_PP_5mA);
     UART1_DefInit();
 #endif
-    PFIC_EnableIRQ(GPIO_A_IRQn);
 
-    GPIOA_ITModeCfg(GPIO_Pin_4|GPIO_Pin_5, GPIO_ITMode_FallEdge); // A4 as interrupt source for PULSE1
-    //GPIOA_ITModeCfg(GPIO_Pin_5, GPIO_ITMode_FallEdge); // A5 as interrupt source for PULSE2
+    GPIOA_ITModeCfg(GPIO_Pin_4|GPIO_Pin_5, GPIO_ITMode_FallEdge); // A4,A5 as interrupt source for PULSE1, PULSE2
+    PFIC_EnableIRQ(GPIO_A_IRQn);
 
     load_counter();     // либо EEPROM либо хардкод
 
@@ -286,12 +285,16 @@ int main(void)
     CH59x_BLEInit();            // инициализация стека BLE
     HAL_Init();
     GAPRole_BroadcasterInit();    // library function
-    HAL_TimeInit();
+    // HAL_TimeInit(); -- не нужен. Вызывается из HAL_Init();
     Broadcaster_Init();         // broadcaster.c
 
     PRINT("*** R8_RESET_STATUS =%02x\r\n", R8_RESET_STATUS & 0x07);
+    
     // поскольку сброс приходит в момент пульса, а счетчик изменялся перед сбросом, нужно защитить от дребезга.
-    // Но очень желательно знать, какой из счетчиков требуется защитить
+    // для этого нужно сохранить текущее время в тиках в _old_time_
+    // TODO: Проверить сбросом, улетают ли значения _old_time_.
+    // Если да - подумать, куда прятать их на время сброса. Потому что они могут быть оба выставлены, один актуален, второй почти всегда просрочен 
+    // просроченный можно заменить нулем - новое событие должно вызвать тик счетчика
     if((R32_TMR1_CNT_END) & 0x10000) _old_time_1 = MS1_TO_SYSTEM_TIME(TMOS_GetSystemClock());
     // теперь мы защитили только тот пин, который привел к сбросу
     else _old_time_0 = MS1_TO_SYSTEM_TIME(TMOS_GetSystemClock());
@@ -302,5 +305,6 @@ int main(void)
 }
 
 /******************************** endfile @ main ******************************/
+
 
 
