@@ -98,7 +98,7 @@ uint32_t Lib_Write_Flash(uint32_t addr, uint32_t num, uint32_t *pBuf)
 /*******************************************************************************
  * @fn      CH59x_BLEInit
  *
- * @brief   BLE ¿â³õÊ¼»¯
+ * @brief   BLE
  *
  * @param   None.
  *
@@ -216,10 +216,9 @@ tmosEvents HAL_ProcessEvent(tmosTaskID task_id, tmosEvents events)
         else{
             PRINT("is_sleep!=0; wks=%d ", _wks);
         }
-        GPIOA_InverseBits(GPIO_Pin_8);  // A8 §ï§ä§à §ã§Ó§Ö§ä§à§Õ§Ú§à§Õ
-        // §Ù§Ñ§á§å§ã§Ü§Ñ§Ö§Þ §à§Õ§ß§à§â§Ñ§Ù§à§Ó§å§ð §Ù§Ñ§Õ§Ñ§é§å, §Ü§à§ä§à§â§Ñ§ñ §á§â§Ú§Ó§Ö§Õ§Ö§ä §Ó §ï§ä§à §Ø§Ö §Þ§Ö§ã§ä§à
+        GPIOA_InverseBits(GPIO_Pin_8);
         tmos_start_task(halTaskID, LED_TIMER_EXPIRED_EVENT, MS1_TO_SYSTEM_TIME(200));
-        return (events ^ LED_TIMER_EXPIRED_EVENT); // §ã§Ò§â§à§ã§Ú§Ý§Ú §á§â§Ú§Ù§ß§Ñ§Ü §ï§Ó§Ö§ß§ä§Ñ, §à§ß §à§Ò§ã§Ý§å§Ø§Ö§ß
+        return (events ^ LED_TIMER_EXPIRED_EVENT);
     }
 
     if(events & LED_BLINK_EVENT)
@@ -289,7 +288,7 @@ void HAL_Init()
     tmos_start_task(halTaskID, HAL_REG_INIT_EVENT, 800); // Added calibration task, started in 500ms, single calibration takes less than 10ms
 #endif
 //    tmos_start_task( halTaskID, HAL_TEST_EVENT, 1600 );    // Add a test task
-    tmos_set_event(halTaskID, LED_TIMER_EXPIRED_EVENT);     // §ß§Ö§á§à§ã§â§Ö§Õ§ã§ä§Ó§Ö§ß§ß§í§Û §Õ§â§à§á §ï§Ó§Ö§ß§ä§Ñ
+    tmos_set_event(halTaskID, LED_TIMER_EXPIRED_EVENT);     // Force HAL_ProcessEvent with LED_TIMER_EXPIRED_EVENT
 }
 
 /*******************************************************************************
@@ -320,3 +319,4 @@ uint16_t HAL_GetInterTempValue(void)
 }
 
 /******************************** endfile @ mcu ******************************/
+
