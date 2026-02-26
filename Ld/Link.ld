@@ -7,7 +7,8 @@ PROVIDE( _stack_size = __stack_size );
 MEMORY
 {
 	FLASH (rx) : ORIGIN = 0x00000000, LENGTH = 448K
-	RAM (xrw) : ORIGIN = 0x20000000, LENGTH = 26K
+	NOINIT (rw) : ORIGIN = 0x20000000, LENGTH = 2K
+	RAM (xrw) : ORIGIN = 0x20000800, LENGTH = 24K
 }
 
 SECTIONS
@@ -166,7 +167,7 @@ SECTIONS
 		. = ALIGN(4);
 		PROVIDE( _ebss = .);
 	} >RAM AT>FLASH
-
+	
 	PROVIDE( _end = _ebss);
 	PROVIDE( end = . );
 	
@@ -177,7 +178,9 @@ SECTIONS
         PROVIDE(_susrstack = . );
         . = . + __stack_size;
         PROVIDE( _eusrstack = .);
-    } >RAM 
+    } >RAM
+    
+     .noinit (NOLOAD) : { *(.noinit*) } > NOINIT
 }
 
 

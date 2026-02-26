@@ -33,22 +33,24 @@ typedef struct __sea {
     uint16_t val2;
 }SEA;
 
-#define CNT_CUBES 902
-#define CNT_BUCKETS 76
-#define CNT_CUBES2 362
+#define CNT_CUBES 979
+#define CNT_BUCKETS 76 // 44->59
+#define CNT_CUBES2 391
 #define CNT_BUCKETS2 16
 
 #define WC_TAG 0x4357
 #define WH_TAG 0x4857
 
-volatile uint32_t _old_time_0 = 0;
-volatile uint32_t _old_time_1 = 0;
+__attribute__((section(".noinit"))) volatile uint32_t _old_time_0 = 0;
+__attribute__((section(".noinit"))) volatile uint32_t _old_time_1 = 0;
 volatile uint8_t is_sleep = 0;
-volatile uint8_t _pulse1 = 0;
-volatile uint8_t _pulse2 = 0;
+__attribute__((section(".noinit"))) volatile uint8_t _pulse1 = 0;
+__attribute__((section(".noinit"))) volatile uint8_t _pulse2 = 0;
 volatile uint16_t _wks = 0;
+__attribute__((section(".noinit"))) uint16_t __counter_cold, __counter_hot;
 
-__attribute__((aligned(4))) uint32_t MEM_BUF[BLE_MEMHEAP_SIZE / 4];     // буфер для BLE стека
+
+__attribute__((aligned(4))) uint32_t MEM_BUF[BLE_MEMHEAP_SIZE / 4];     // буфер для BLE стека - не влезет в NOINIT
 
 #if(defined(BLE_MAC)) && (BLE_MAC == TRUE)
 const uint8_t MacAddr[6] =
@@ -60,7 +62,6 @@ const uint8_t MacAddr[6] =
 
 SEA s;
 
-uint16_t __counter_cold, __counter_hot;
 
 /*
  *  Проблема в том, что мы не знаем, холодный сон или горячий
@@ -77,7 +78,7 @@ void GPIOA_IRQHandler(void)
 
     if(is_sleep == 2){
           is_sleep = 0;         // set active
-        // Из обработчиков лучше убрать любые принты 
+        // Из обработчиков лучше убрать любые принты
         // PRINT("* Wake (%d, %d)...\r\n", (R8_GLOB_RESET_KEEP), (R32_TMR1_CNT_END) & ~0x10000);
           GPIOA_ResetBits(led_pin); // LED on
         /*
@@ -260,8 +261,6 @@ static void load_counter(){
  */
 int main(void)
 {
-    uint16_t readbuf[8];
-
     if(R8_GLOB_RESET_KEEP == 0){
         (R32_TMR1_CNT_END) = CNT_BUCKETS2;      // писать только если R8_GLOB_RESET_KEEP равен нулю.
     }
@@ -288,8 +287,8 @@ int main(void)
 
     PRINT("%s\r\n", VER_LIB);
     CH59x_BLEInit();            // инициализация стека BLE
-    // TODO: Возможно, все модули не надо инициализировать? Если время не менялось, его надо инициализировать только при первом сбросе 
-    // по включению питания! 
+    // TODO: Возможно, все модули не надо инициализировать? Если время не менялось, его надо инициализировать только при первом сбросе
+    // по включению питания!
     HAL_Init();
     GAPRole_BroadcasterInit();    // library function
     // HAL_TimeInit(); -- не нужен. Вызывается из HAL_Init();
@@ -300,7 +299,7 @@ int main(void)
     // поскольку сброс приходит в момент пульса, а счетчик изменялся перед сбросом, нужно защитить от дребезга.
     // для этого нужно сохранить текущее время в тиках в _old_time_
     // TODO: Проверить сбросом, улетают ли значения _old_time_.
-    // Если да - подумать, куда прятать их на время сброса. Потому что они могут быть оба выставлены, один актуален, второй почти всегда просрочен 
+    // Если да - подумать, куда прятать их на время сброса. Потому что они могут быть оба выставлены, один актуален, второй почти всегда просрочен
     // просроченный можно заменить нулем - новое событие должно вызвать тик счетчика
     if((R32_TMR1_CNT_END) & 0x10000) _old_time_1 = MS1_TO_SYSTEM_TIME(TMOS_GetSystemClock());
     // теперь мы защитили только тот пин, который привел к сбросу
