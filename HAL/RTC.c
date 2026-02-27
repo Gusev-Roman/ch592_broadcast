@@ -3,7 +3,7 @@
  * Author             : WCH
  * Version            : V1.2
  * Date               : 2022/01/18
- * Description        : RTC≈‰÷√º∞∆‰≥ı ºªØ
+ * Description        : RTCÈÖçÁΩÆÂèäÂÖ∂ÂàùÂßãÂåñ
  *********************************************************************************
  * Copyright (c) 2021 Nanjing Qinheng Microelectronics Co., Ltd.
  * Attention: This software (modified or not) and binary are used for 
@@ -11,7 +11,7 @@
  *******************************************************************************/
 
 /******************************************************************************/
-/* Õ∑Œƒº˛∞¸∫¨ */
+/* Â§¥Êñá‰ª∂ÂåÖÂê´ */
 #include "HAL.h"
 
 /*********************************************************************
@@ -29,9 +29,9 @@ volatile uint32_t RTCTigFlag;
 /*******************************************************************************
  * @fn      RTC_SetTignTime
  *
- * @brief   ≈‰÷√RTC¥•∑¢ ±º‰
+ * @brief   ÈÖçÁΩÆRTCËß¶ÂèëÊó∂Èó¥
  *
- * @param   time    - ¥•∑¢ ±º‰.
+ * @param   time    - Ëß¶ÂèëÊó∂Èó¥.
  *
  * @return  None.
  */
@@ -46,7 +46,7 @@ void RTC_SetTignTime(uint32_t time)
 /*******************************************************************************
  * @fn      RTC_IRQHandler
  *
- * @brief   RTC÷–∂œ¥¶¿Ì
+ * @brief   RTC‰∏≠Êñ≠Â§ÑÁêÜ
  *
  * @param   None.
  *
@@ -63,7 +63,7 @@ void RTC_IRQHandler(void)
 /*******************************************************************************
  * @fn      SYS_GetClockValue
  *
- * @brief   ªÒ»°RTCµ±«∞º∆ ˝÷µ
+ * @brief   Ëé∑ÂèñRTCÂΩìÂâçËÆ°Êï∞ÂÄº
  *
  * @param   None.
  *
@@ -84,7 +84,7 @@ static uint32_t SYS_GetClockValue(void)
 /*******************************************************************************
  * @fn      HAL_Time0Init
  *
- * @brief   œµÕ≥∂® ±∆˜≥ı ºªØ
+ * @brief   Á≥ªÁªüÂÆöÊó∂Âô®ÂàùÂßãÂåñ
  *
  * @param   None.
  *
@@ -93,21 +93,21 @@ static uint32_t SYS_GetClockValue(void)
 void HAL_TimeInit(void)
 {
     bleClockConfig_t conf;
-#if(CLK_OSC32K)
+#if(CLK_OSC32K)   // Set it to 0! Boards has a 32k crystal
     sys_safe_access_enable();
-    R8_CK32K_CONFIG &= ~(RB_CLK_OSC32K_XT | RB_CLK_XT32K_PON);
+    R8_CK32K_CONFIG &= ~(RB_CLK_OSC32K_XT | RB_CLK_XT32K_PON); // OSC32K_XT=0: internal, XT32K_PON=0: external OSC power off
     sys_safe_access_disable();
     sys_safe_access_enable();
-    R8_CK32K_CONFIG |= RB_CLK_INT32K_PON;
+    R8_CK32K_CONFIG |= RB_CLK_INT32K_PON; // INT32K_PON=1: internal OSC power on
     sys_safe_access_disable();
     LSECFG_Current(LSE_RCur_100);
     Lib_Calibration_LSI();
 #else
     sys_safe_access_enable();
-    R8_CK32K_CONFIG &= ~RB_CLK_INT32K_PON;
+    R8_CK32K_CONFIG &= ~RB_CLK_INT32K_PON; // internal OSC power off
     sys_safe_access_disable();
     sys_safe_access_enable();
-    R8_CK32K_CONFIG |= RB_CLK_OSC32K_XT | RB_CLK_XT32K_PON;
+    R8_CK32K_CONFIG |= RB_CLK_OSC32K_XT | RB_CLK_XT32K_PON; // use external OSC, external power on
     sys_safe_access_disable();
 #endif
     RTC_InitTime(2026, 3, 1, 0, 0, 0); //RTC clock initializes current time
@@ -122,3 +122,4 @@ void HAL_TimeInit(void)
 }
 
 /******************************** endfile @ time ******************************/
+
